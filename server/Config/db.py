@@ -8,7 +8,7 @@ logger = logging.getLogger(__name__)
 
 try:
     client = AsyncIOMotorClient(URL)
-    db = client["rootcodeproject"]
+    db = client["RootCodeProject"]
     logger.info("Connected to MongoDB successfully.")
     warrent_collection = db["Warrent"]
     salary_particular_collection = db["Salary_Particular"]
