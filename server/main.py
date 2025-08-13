@@ -1,7 +1,7 @@
 from http import server
 from fastapi import FastAPI
 from fastapi.staticfiles import StaticFiles
-from server.Routes.WarrentRoutes import warrent_router
+from Routes.WarrentRoutes import warrent_router
 
 app = FastAPI()
 

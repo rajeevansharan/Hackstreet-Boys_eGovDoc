@@ -24,4 +24,4 @@ class WarrentModel(BaseModel):
     RequiredCompletionDate: datetime = Field(..., example="2025-08-20T00:00:00")
     SpouseName: Optional[str] = Field(None, example="Jane Doe")
     SpouseDepartment: Optional[str] = Field(None, example="Finance")
-    UserId: str = Field(..., example="user123")
+    # UserId: str = Field(..., example="user123")

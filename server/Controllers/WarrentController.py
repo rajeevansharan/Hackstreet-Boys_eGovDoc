@@ -1,7 +1,7 @@
 from fastapi import HTTPException
 from typing import List
-from server.Models.WarrentModel import WarrentModel
-from server.Config.db import warrent_collection
+from Models.WarrentModel import WarrentModel
+from Config.db import warrent_collection
 
 
 async def get_Warrents_logic() -> List[WarrentModel]:

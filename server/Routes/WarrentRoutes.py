@@ -1,7 +1,7 @@
 from fastapi import APIRouter
 from typing import List
-from server.Models.WarrentModel import WarrentModel
-from server.Controllers.WarrentController import *
+from Models.WarrentModel import WarrentModel
+from Controllers.WarrentController import *
 
 warrent_router = APIRouter(prefix="/warrents",tags=["Warrents"])
 
