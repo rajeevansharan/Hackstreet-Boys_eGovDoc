@@ -11,6 +11,6 @@ async def get_Warrents():
     return await get_Warrents_logic()
 
 
-@warrent_router.post("/create", response_model=dict)
+@warrent_router.post("/createwarrents", response_model=dict)
 async def create_warrent(warrent: WarrentModel):
     return await create_warrent_logic(warrent)
