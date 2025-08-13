@@ -1,12 +1,14 @@
 from fastapi import HTTPException
 from typing import List
+
 from Models.WarrentModel import WarrentModel
 from Config.db import warrent_collection
+from Schemas.WarrentSchema import CreateWarrentSchema
 
 
-async def create_warrent_logic(warrent: WarrentModel) -> dict:
+async def create_warrent_logic(warrent: CreateWarrentSchema) -> dict:
     try:
-        warrent_dict = warrent.dict(by_alias=True)
+        warrent_dict = warrent.dict()
         result = await warrent_collection.insert_one(warrent_dict)
         return {"inserted_id": str(result.inserted_id)}
     except Exception as e:
