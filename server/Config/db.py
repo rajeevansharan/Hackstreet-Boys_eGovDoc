@@ -1,4 +1,4 @@
-from motor.motor_asyncio import AsyncIOMotorClient
+from motor.motor_asyncio import AsyncIOMotorClient, AsyncIOMotorGridFSBucket
 import logging
 
 URL = "mongodb+srv://sinthujan:Pwd2002@rootcodeproject.buidvwn.mongodb.net/"
@@ -9,9 +9,15 @@ logger = logging.getLogger(__name__)
 try:
     client = AsyncIOMotorClient(URL)
     db = client["eGovDoc"]
+
+    # GridFS for file storage - using the correct Motor import
+    fs = AsyncIOMotorGridFSBucket(db)
+
     logger.info("Connected to MongoDB successfully.")
     warrent_collection = db["Warrent"]
     salary_particular_collection = db["Salary_Particular"]
+    appointments_collection = db["Appointments"]
+    services_collection = db["Services"]
     logger.info("Collections initialized successfully.")
 except Exception as e:
     logger.error(f"Failed to connect to MongoDB: {e}")
