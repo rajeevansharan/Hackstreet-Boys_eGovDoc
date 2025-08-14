@@ -5,8 +5,8 @@ import user from "../assets/person.svg";
 
 function NavBar() {
   return (
-    <div className="glassy-card flex w-full justify-between">
-      <img width="25px" height="25px" src={home} />
+    <div className="glassy-card flex w-full  justify-between absolute bottom-0 p-[10px] mb-[34px] mx-[10px]">
+      <img width="25px" height="25px" src={home} className="glassy-card"/>
       <img width="25px" height="25px" src={requests} />
       <img width="25px" height="25px" src={notifications} />
       <img width="25px" height="25px" src={user} />

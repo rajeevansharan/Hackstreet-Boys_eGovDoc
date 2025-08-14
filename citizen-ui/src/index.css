@@ -1,5 +1,20 @@
 @import "tailwindcss";
 
+html,
+body {
+  height: 100%;
+}
+
+#root {
+  padding: 0;
+  margin: 0 auto;
+  width: 100%;
+  max-width: 430px;
+  min-width: 320px;
+  height: 100dvh;
+  /* overflow-y: auto;*/
+}
+
 @utility glassy-card {
   display: flex;
   flex-wrap: wrap;
@@ -11,7 +26,8 @@
   padding: 0.5em;
   border-radius: 1em;
 
-  border: 3px solid hsl(0, 0%, 100%, 0.3);
+  border: px solid hsl(0, 0%, 100%, 0.3);
+  border-radius: 55px;
   background: hsl(0, 0%, 100%, 0.2);
   backdrop-filter: blur(2px);
   box-shadow: inset 0 0 8px 1px hsl(0, 0%, 100%, 0.6);
