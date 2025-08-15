@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { FaCamera } from "react-icons/fa";
+import PrimaryNavBar from "../components/PrimaryNavBar";
 
 export default function AccountPage() {
   const [name, setName] = useState("");
@@ -108,6 +109,7 @@ export default function AccountPage() {
           </button>
         </div>
       </div>
+      <PrimaryNavBar />
     </div>
   );
 }
