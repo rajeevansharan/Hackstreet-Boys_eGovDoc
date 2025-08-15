@@ -5,7 +5,7 @@ from typing import Optional
 
 class CreateWarrentSchema(BaseModel):
     fullname: str = Field(..., example="John Doe")
-    pensionNo: str = Field(..., example="PEN123456")
+    pensionNo: str = Field(..., example="PEN1234567")
     placeOfPaymentPension: str = Field(..., example="Colombo")
     DateOfRetirement: datetime = Field(..., example="2025-08-13T00:00:00")
     AnnualSalaryAtRetirementDate: float = Field(..., example=50000.0)
@@ -24,3 +24,7 @@ class CreateWarrentSchema(BaseModel):
     SpouseName: Optional[str] = Field(None, example="Jane Doe")
     SpouseDepartment: Optional[str] = Field(None, example="Finance")
     UserId: str = Field(..., example="user123")
+    AppointmentDate: str = Field(..., example="2025-08-15")
+    AppointmentTime: str = Field(..., example="10:00")
+    Area: str = Field(..., example="Colombo")
+    

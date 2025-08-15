@@ -1,6 +1,7 @@
 from fastapi import APIRouter
 from typing import List
 from Models.WarrentModel import WarrentModel
+from Schemas.WarrentSchema import CreateWarrentSchema
 from Controllers.WarrentController import get_Warrents_logic, create_warrent_logic
 
 warrent_router = APIRouter(prefix="/warrents", tags=["Warrents"])
@@ -12,5 +13,5 @@ async def get_Warrents():
 
 
 @warrent_router.post("/createwarrents", response_model=dict)
-async def create_warrent(warrent: WarrentModel):
+async def create_warrent(warrent: CreateWarrentSchema):
     return await create_warrent_logic(warrent)
