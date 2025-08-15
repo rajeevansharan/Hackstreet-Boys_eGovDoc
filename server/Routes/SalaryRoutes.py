@@ -1,11 +1,11 @@
 from fastapi import APIRouter, UploadFile, File, Form, Depends
 from typing import List, Optional
-from datetime import datetime
+from datetime import datetime, time, date
 
 from Models.SalaryModel import salaryModel
 from Controllers.SalaryParticularControllelr import (
     create_salary_particular_logic,
-    get_salary_particular_by_user_and_appointment_logic
+    get_salary_particular
 )
 from Schemas.SalarySchema import CreateSalaryParticularSchema
 
@@ -18,19 +18,14 @@ async def create_salary_particular(
     PensionID: str = Form(...),
     ReasonForRequest: str = Form(...),
     PriorityLevel: str = Form(...),
-    AppointmentDate: str = Form(...),  # Will be parsed to datetime
+    AppointmentDate: date = Form(...),  
     UserId: str = Form(...),
     Area: str = Form(...),
-    AppointmentTime: Optional[str] = Form(None),
-    AdditionalDetails: Optional[str] = Form(None),
-    files: Optional[List[UploadFile]] = File(None)
+    AppointmentTime: time = Form(...),
+    AdditionalDetails: str = Form(...),
+    files: Optional[List[UploadFile]] = File(...)
 ):
     """Create a new salary particular request with optional file uploads"""
-    # Parse appointment date
-    try:
-        appointment_date = datetime.fromisoformat(AppointmentDate.replace('Z', '+00:00'))
-    except:
-        appointment_date = datetime.strptime(AppointmentDate, "%Y-%m-%d")
     
     # Create schema object
     salary_data = CreateSalaryParticularSchema(
@@ -39,7 +34,7 @@ async def create_salary_particular(
         PensionID=PensionID,
         ReasonForRequest=ReasonForRequest,
         PriorityLevel=PriorityLevel,
-        AppointmentDate=appointment_date,
+        AppointmentDate=AppointmentDate,
         AppointmentTime=AppointmentTime,
         AdditionalDetails=AdditionalDetails,
         UserId=UserId,
@@ -49,3 +44,6 @@ async def create_salary_particular(
     return await create_salary_particular_logic(salary_data, files)
 
 
+@salary_router.get("/get/{resourceId}", response_model=salaryModel)
+async def getdetails(resourceId:str):
+    return await get_salary_particular(resourceId)

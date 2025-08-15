@@ -1,12 +1,24 @@
 from http import server
 from fastapi import FastAPI
-from fastapi.staticfiles import StaticFiles
+from fastapi.middleware.cors import CORSMiddleware
 from Routes.WarrentRoutes import warrent_router
 from Routes.SalaryRoutes import salary_router
 from Routes.RequestRoute import request_router
 from Routes.FeedbackRoutes import feedback_router
+from Routes.AuthRoutes import auth_router
+
 
 app = FastAPI()
+
+
+# Configure CORS
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],  # Update this in production
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
 
 @app.get("/")
 def home():
@@ -16,3 +28,4 @@ app.include_router(warrent_router)
 app.include_router(salary_router)
 app.include_router(feedback_router)
 app.include_router(request_router)
+app.include_router(auth_router)

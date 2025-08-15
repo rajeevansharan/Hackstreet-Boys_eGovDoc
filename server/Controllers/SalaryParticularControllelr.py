@@ -1,11 +1,10 @@
-from fastapi import HTTPException, UploadFile, File
+from fastapi import HTTPException, UploadFile
 from typing import List, Optional
 import uuid
 from datetime import datetime
+from bson import ObjectId
 
-from Models.SalaryModel import salaryModel, SupportingDocument
-from Models.AppointmentModel import Appointment
-from Models.RequestModel import Request
+from Models.SalaryModel import SupportingDocument, salaryModel
 from Config.db import salary_particular_collection, appointments_collection, services_collection, fs, requests_collection, employees_collection
 from Schemas.SalarySchema import CreateSalaryParticularSchema
 from utils.helper import generate_qr_code
@@ -20,10 +19,9 @@ async def create_salary_particular_logic(
         salary_dict = salary_data.dict()
         salary_dict["created_at"] = datetime.utcnow()
 
-        # Convert datetime fields to strings for consistent storage
-        if isinstance(salary_dict["AppointmentDate"], datetime):
-            salary_dict["AppointmentDate"] = salary_dict["AppointmentDate"].strftime("%Y-%m-%d")
-        
+        # Convert date and time objects to strings for MongoDB
+        salary_dict["AppointmentDate"] = salary_data.AppointmentDate.isoformat()
+        salary_dict["AppointmentTime"] = salary_data.AppointmentTime.strftime("%H:%M") if salary_data.AppointmentTime else None
         # Handle file uploads if provided
         supporting_documents = []
         if files:
@@ -103,21 +101,6 @@ async def _create_salary_request(salary_data: CreateSalaryParticularSchema, sala
         else:
             handler_id = str(requestHandler["_id"])
         
-        # Parse and format time properly
-        if salary_data.AppointmentTime:
-            # Parse time string like "10:30 AM" to "10:30"
-            time_str = salary_data.AppointmentTime.strip()
-            try:
-                # Handle AM/PM format
-                if 'AM' in time_str.upper() or 'PM' in time_str.upper():
-                    time_obj = datetime.strptime(time_str, "%I:%M %p")
-                    appointment_time = time_obj.strftime("%H:%M")
-                else:
-                    appointment_time = time_str
-            except:
-                appointment_time = "10:00"  # Fallback
-        else:
-            appointment_time = "10:00"  # Default time
         
         # Create request data with proper string formats
         request_data = {
@@ -132,8 +115,8 @@ async def _create_salary_request(salary_data: CreateSalaryParticularSchema, sala
             "resource_name": "salary_particular",
             "priority": salary_data.PriorityLevel.lower(),
             # Store as strings to avoid MongoDB datetime conversion
-            "requestAppointmentDate": salary_data.AppointmentDate.strftime("%Y-%m-%d"),
-            "requestAppointmentTime": appointment_time,
+            "requestAppointmentDate": salary_data.AppointmentDate.isoformat(),
+            "requestAppointmentTime": salary_data.AppointmentTime.strftime("%H:%M"),
             "Area":salary_data.Area
         }
         
@@ -156,7 +139,7 @@ async def create_appointment_from_request(request_id: str, user_id: str) -> dict
     """Isolated function to create appointment from approved request"""
     try:
         # Convert string request_id to ObjectId for MongoDB query
-        from bson import ObjectId
+
         
         # Get request details
         request = await requests_collection.find_one({"_id": ObjectId(request_id), "user_Id": user_id})
@@ -228,34 +211,24 @@ async def create_appointment_from_request(request_id: str, user_id: str) -> dict
         raise HTTPException(status_code=500, detail=f"Error creating appointment: {str(e)}")
 
 
-async def get_salary_particular_by_user_and_appointment_logic(user_id: str, appointment_id: str) -> dict:
-    """Get salary particular by user ID and appointment ID"""
+async def get_salary_particular(resourceId: str) -> salaryModel:
+    """Retrieve a specific salary particular document by its ID"""
     try:
-        from bson import ObjectId
+        # Validate ObjectId format
+        if not ObjectId.is_valid(resourceId):
+            raise HTTPException(status_code=400, detail="Invalid resource ID format")
+            
+        resource = await salary_particular_collection.find_one({"_id": ObjectId(resourceId)})
         
-        # Find appointment first
-        appointment = await appointments_collection.find_one({"_id": ObjectId(appointment_id), "user_Id": user_id})
-        if not appointment:
-            raise HTTPException(status_code=404, detail="Appointment not found")
+        # Handle not found case
+        if resource is None:
+            raise HTTPException(status_code=404, detail=f"Salary particular with ID {resourceId} not found")
+            
+        # Convert MongoDB document to Pydantic model
+        resource["_id"] = str(resource["_id"])  # Convert ObjectId to string
+        return salaryModel(**resource)
         
-        # Find salary particular using the request_id from appointment
-        salary = await salary_particular_collection.find_one({"request_id": appointment.get("request_id")})
-        if not salary:
-            raise HTTPException(status_code=404, detail="Salary particular not found")
-        
-        # Convert ObjectId to string for JSON serialization
-        salary["_id"] = str(salary["_id"])
-        
-        return {
-            "salary_particular": salary,
-            "appointment_details": {
-                "appointment_id": str(appointment["_id"]),
-                "booking_reference": appointment["booking_reference"],
-                "date": appointment["date"],
-                "time": appointment["time"],
-                "status": appointment["status"]
-            }
-        }
-        
-    except Exception as e:
-        raise HTTPException(status_code=500, detail=f"Error retrieving salary particular: {str(e)}")
+    except HTTPException:
+        raise
+    except Exception as err:
+        raise HTTPException(status_code=500, detail=f"Error fetching salary particular: {str(err)}")
