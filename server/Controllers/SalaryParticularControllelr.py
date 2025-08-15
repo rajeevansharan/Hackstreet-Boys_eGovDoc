@@ -19,6 +19,10 @@ async def create_salary_particular_logic(
         # Convert schema to dict
         salary_dict = salary_data.dict()
         salary_dict["created_at"] = datetime.utcnow()
+
+        # Convert datetime fields to strings for consistent storage
+        if isinstance(salary_dict["AppointmentDate"], datetime):
+            salary_dict["AppointmentDate"] = salary_dict["AppointmentDate"].strftime("%Y-%m-%d")
         
         # Handle file uploads if provided
         supporting_documents = []
@@ -97,15 +101,25 @@ async def _create_salary_request(salary_data: CreateSalaryParticularSchema, sala
             # If no specific handler found, use a default handler ID
             handler_id = "DEFAULT_GS001"
         else:
-            handler_id = str(requestHandler["_id"])  # Fix: Use quotes around _id and convert to string
+            handler_id = str(requestHandler["_id"])
         
-        # Parse time from AppointmentTime string if provided
+        # Parse and format time properly
         if salary_data.AppointmentTime:
-            appointment_time = salary_data.AppointmentTime.strip()
+            # Parse time string like "10:30 AM" to "10:30"
+            time_str = salary_data.AppointmentTime.strip()
+            try:
+                # Handle AM/PM format
+                if 'AM' in time_str.upper() or 'PM' in time_str.upper():
+                    time_obj = datetime.strptime(time_str, "%I:%M %p")
+                    appointment_time = time_obj.strftime("%H:%M")
+                else:
+                    appointment_time = time_str
+            except:
+                appointment_time = "10:00"  # Fallback
         else:
             appointment_time = "10:00"  # Default time
         
-        # Create request data with string formats
+        # Create request data with proper string formats
         request_data = {
             "service_id": "service001",
             "service_name": salary_service["name"],
@@ -117,10 +131,10 @@ async def _create_salary_request(salary_data: CreateSalaryParticularSchema, sala
             "resource_id": salary_id,
             "resource_name": "salary_particular",
             "priority": salary_data.PriorityLevel.lower(),
-            # Store as date string (YYYY-MM-DD)
+            # Store as strings to avoid MongoDB datetime conversion
             "requestAppointmentDate": salary_data.AppointmentDate.strftime("%Y-%m-%d"),
-            # Store as time string (HH:MM)
-            "requestAppointmentTime": appointment_time
+            "requestAppointmentTime": appointment_time,
+            "Area":salary_data.Area
         }
         
         # Save request to database

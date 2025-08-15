@@ -12,5 +12,4 @@ class CreateSalaryParticularSchema(BaseModel):
     AppointmentDate: datetime = Field(..., example="2025-08-20T00:00:00")
     AppointmentTime: str = Field(None, example="10:30 AM")
     AdditionalDetails: Optional[str] = Field(None, example="Additional information")
-    UserId: str = Field(..., example="user123"),
-    Area: str = Field(..., example="jaffna")
+    UserId: str = Field(..., example="user123")

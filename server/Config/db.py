@@ -20,6 +20,7 @@ try:
     services_collection = db["Services"]
     requests_collection = db["Requests"]
     employees_collection = db["GOV_Employees"]
+    users_collection = db["Users"]
     feedback_collection = db["Feedback"]
     logger.info("Collections initialized successfully.")
 except Exception as e:
