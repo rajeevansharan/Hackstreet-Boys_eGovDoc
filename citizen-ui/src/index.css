@@ -3,4 +3,12 @@
 
 body {
   font-family: "Roboto", sans-serif;
+  margin: 0;
+  height: 100vh;
+  background: linear-gradient(
+    to top,
+    #3A66A3 4%,
+    #9DB2D1 72%,
+    #FFFFFF 100%
+  );
 }
