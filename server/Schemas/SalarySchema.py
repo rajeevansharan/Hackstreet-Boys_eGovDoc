@@ -1,5 +1,5 @@
 from pydantic import BaseModel, Field
-from datetime import datetime
+from datetime import datetime, date, time
 from typing import Optional
 
 class CreateSalaryParticularSchema(BaseModel):
@@ -9,7 +9,8 @@ class CreateSalaryParticularSchema(BaseModel):
     PensionID: str = Field(..., example="IN23332")
     ReasonForRequest: str = Field(..., example="University Registration")
     PriorityLevel: str = Field(..., example="High")
-    AppointmentDate: datetime = Field(..., example="2025-08-20T00:00:00")
-    AppointmentTime: str = Field(None, example="10:30 AM")
+    AppointmentDate: date = Field(..., example="2025-08-20")
+    AppointmentTime: time = Field(None, example="10:30 AM")
     AdditionalDetails: Optional[str] = Field(None, example="Additional information")
     UserId: str = Field(..., example="user123")
+    Area: str = Field(...,example="Jaffna")

@@ -3,7 +3,7 @@ from typing import List
 
 from Controllers.RequestController import get_available_slots_logic, get_requests_employees, get_requests_users
 
-request_router = APIRouter(prefix="/appointments", tags=["Appointments"])
+request_router = APIRouter(prefix="/appointments", tags=["Requests"])
 
 @request_router.get("/available-slots/{service_id}/{userId}")
 async def get_available_slots(service_id: str, date: str, userId:str):
@@ -15,6 +15,6 @@ async def get_available_slots(service_id: str, date: str, userId:str):
 async def get_request_users(service_id:str ,userId:str):
     return await get_requests_users(service_id, userId)
 
-@request_router.get("/get-request-users/{service_id}/{empId}")
+@request_router.get("/get-request-emp/{service_id}/{empId}")
 async def get_request_users(service_id:str ,empId:str):
-    return await get_requests_users(service_id, empId)
+    return await get_requests_employees(service_id, empId)
