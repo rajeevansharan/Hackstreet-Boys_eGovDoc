@@ -3,7 +3,7 @@ import Home from "./pages/Home";
 
 const router = createBrowserRouter([
   {
-    index: true,
+    path: "/*",
     element: <Home />,
   },
 ]);

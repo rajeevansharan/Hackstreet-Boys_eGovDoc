@@ -10,9 +10,9 @@ function PrimaryNavBar() {
 
   const items = [
     { path: "/", label: "Home", Icon: IoHomeOutline },
-    { label: "Requests", Icon: TfiList },
-    { label: "Notifications", Icon: FaRegBell },
-    { label: "Account", Icon: FaRegUser },
+    { path: "/requests", label: "Requests", Icon: TfiList },
+    { path: "/notifications", label: "Notifications", Icon: FaRegBell },
+    { path: "/account", label: "Account", Icon: FaRegUser },
   ];
 
   return (
