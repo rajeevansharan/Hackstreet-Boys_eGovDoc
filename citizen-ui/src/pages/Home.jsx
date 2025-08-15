@@ -46,9 +46,9 @@ const Home = () => {
         <button className="flex items-center gap-1 text-sm font-semibold text-black hover:underline">
           Track →
         </button>
-<PrimaryNavBar />
       </div>
-
+      <PrimaryNavBar />
+    </div>
   );
 };
 
