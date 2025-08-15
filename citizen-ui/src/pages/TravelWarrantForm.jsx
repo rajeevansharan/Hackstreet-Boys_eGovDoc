@@ -14,6 +14,13 @@ export default function TravelWarrantForm() {
     carType: '',
     dependantChildren: '',
     childrenAges: '',
+    fromStation: '',
+    toStation: '',
+    outwardJourneyDate: '',
+    returnJourneyDate: '',
+    priorityLevel: '',
+    appointmentDate: '',
+    appointmentTime: '',
     spouseName: '',
     spouseDepartment: '',
     informationAccurate: false
@@ -268,6 +275,141 @@ export default function TravelWarrantForm() {
                 />
               </div>
 
+              {/* Journey Details Section */}
+              <div className="mt-8">
+                <h3 className="text-lg font-semibold text-black mb-4">
+                  Journey Details
+                </h3>
+                
+                {/* From Station */}
+                <div className="mb-4">
+                  <label className="block text-sm font-medium text-black mb-2">
+                    From Station
+                  </label>
+                  <input
+                    type="text"
+                    value={formData.fromStation}
+                    onChange={(e) => handleInputChange('fromStation', e.target.value)}
+                    className="w-full px-4 py-3 bg-white/30 backdrop-blur-sm rounded-lg border-0 text-black placeholder-gray-600 focus:outline-none focus:ring-2 focus:ring-blue-400"
+                    placeholder=""
+                  />
+                </div>
+
+                {/* To Station */}
+                <div className="mb-4">
+                  <label className="block text-sm font-medium text-black mb-2">
+                    To Station
+                  </label>
+                  <input
+                    type="text"
+                    value={formData.toStation}
+                    onChange={(e) => handleInputChange('toStation', e.target.value)}
+                    className="w-full px-4 py-3 bg-white/30 backdrop-blur-sm rounded-lg border-0 text-black placeholder-gray-600 focus:outline-none focus:ring-2 focus:ring-blue-400"
+                    placeholder=""
+                  />
+                </div>
+
+                {/* Date Of Outward Journey */}
+                <div className="mb-4">
+                  <label className="block text-sm font-medium text-black mb-2">
+                    Date Of Outward Journey
+                  </label>
+                  <div className="relative">
+                    <input
+                      type="date"
+                      value={formData.outwardJourneyDate}
+                      onChange={(e) => handleInputChange('outwardJourneyDate', e.target.value)}
+                      className="w-full px-4 py-3 bg-white/30 backdrop-blur-sm rounded-lg border-0 text-black placeholder-gray-600 focus:outline-none focus:ring-2 focus:ring-blue-400 appearance-none"
+                    />
+                    <Calendar className="absolute right-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-gray-600 pointer-events-none" />
+                  </div>
+                </div>
+
+                {/* Date of Return Journey */}
+                <div className="mb-4">
+                  <label className="block text-sm font-medium text-black mb-2">
+                    Date of Return Journey
+                  </label>
+                  <div className="relative">
+                    <input
+                      type="date"
+                      value={formData.returnJourneyDate}
+                      onChange={(e) => handleInputChange('returnJourneyDate', e.target.value)}
+                      className="w-full px-4 py-3 bg-white/30 backdrop-blur-sm rounded-lg border-0 text-black placeholder-gray-600 focus:outline-none focus:ring-2 focus:ring-blue-400 appearance-none"
+                    />
+                    <Calendar className="absolute right-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-gray-600 pointer-events-none" />
+                  </div>
+                </div>
+
+                {/* Priority Level */}
+                <div className="mb-4">
+                  <label className="block text-sm font-medium text-black mb-2">
+                    Priority Level
+                  </label>
+                  <select
+                    value={formData.priorityLevel}
+                    onChange={(e) => handleInputChange('priorityLevel', e.target.value)}
+                    className="w-full px-4 py-3 bg-white/30 backdrop-blur-sm rounded-lg border-0 text-black focus:outline-none focus:ring-2 focus:ring-blue-400"
+                  >
+                    <option value="">Select priority level</option>
+                    <option value="urgent">Urgent</option>
+                    <option value="high">High</option>
+                    <option value="medium">Medium</option>
+                    <option value="low">Low</option>
+                  </select>
+                </div>
+
+                {/* Appointment Date */}
+                <div className="mb-4">
+                  <label className="block text-sm font-medium text-black mb-2">
+                    Appointment Date
+                  </label>
+                  <div className="relative">
+                    <input
+                      type="date"
+                      value={formData.appointmentDate}
+                      onChange={(e) => handleInputChange('appointmentDate', e.target.value)}
+                      className="w-full px-4 py-3 bg-white/30 backdrop-blur-sm rounded-lg border-0 text-black placeholder-gray-600 focus:outline-none focus:ring-2 focus:ring-blue-400 appearance-none"
+                    />
+                    <Calendar className="absolute right-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-gray-600 pointer-events-none" />
+                  </div>
+                </div>
+
+                {/* Time Slot Selection */}
+                <div className="mb-4">
+                  <label className="block text-sm font-medium text-black mb-2">
+                    Time Slot
+                  </label>
+                  <select
+                    value={formData.appointmentTime}
+                    onChange={(e) => handleInputChange('appointmentTime', e.target.value)}
+                    className="w-full px-4 py-3 bg-white/30 backdrop-blur-sm rounded-lg border-0 text-black focus:outline-none focus:ring-2 focus:ring-blue-400"
+                    disabled={!formData.appointmentDate}
+                  >
+                    <option value="">Select time slot</option>
+                    <option value="09:00-09:30">09:00 - 09:30</option>
+                    <option value="09:30-10:00">09:30 - 10:00</option>
+                    <option value="10:00-10:30">10:00 - 10:30</option>
+                    <option value="10:30-11:00">10:30 - 11:00</option>
+                    <option value="11:00-11:30">11:00 - 11:30</option>
+                    <option value="11:30-12:00">11:30 - 12:00</option>
+                    <option value="12:00-12:30">12:00 - 12:30</option>
+                    <option value="12:30-13:00">12:30 - 13:00</option>
+                    <option value="13:00-13:30">13:00 - 13:30</option>
+                    <option value="13:30-14:00">13:30 - 14:00</option>
+                    <option value="14:00-14:30">14:00 - 14:30</option>
+                    <option value="14:30-15:00">14:30 - 15:00</option>
+                    <option value="15:00-15:30">15:00 - 15:30</option>
+                    <option value="15:30-16:00">15:30 - 16:00</option>
+                    <option value="16:00-16:30">16:00 - 16:30</option>
+                    <option value="16:30-17:00">16:30 - 17:00</option>
+                  </select>
+                  {!formData.appointmentDate && (
+                    <p className="text-xs text-gray-600 mt-1">Please select an appointment date first</p>
+                  )}
+                </div>
+              </div>
+
               {/* Supporting Documents Section */}
               <div className="mt-8">
                 <h3 className="text-lg font-semibold text-black mb-4">
@@ -365,5 +507,5 @@ export default function TravelWarrantForm() {
         </div>
       </div>
     </div>
-  );
+  );  
 }
