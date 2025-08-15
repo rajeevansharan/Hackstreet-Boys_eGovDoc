@@ -1,8 +1,12 @@
 import React from 'react'
+import PrimaryNavBar from '../components/PrimaryNavBar'
 
 const NotificationsPage = () => {
   return (
-    <div>NotificationsPage</div>
+    <div>
+        <h1 className="mt-6 mb-6 text-left text-4xl font-extrabold">Notifications</h1>
+        <PrimaryNavBar />
+    </div>
   )
 }
 
