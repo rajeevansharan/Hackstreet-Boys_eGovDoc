@@ -1,6 +1,5 @@
 from fastapi import HTTPException
 from typing import List
-
 from Models.WarrentModel import WarrentModel
 from Config.db import warrent_collection
 from Schemas.WarrentSchema import CreateWarrentSchema

@@ -1,12 +1,11 @@
-import NavBar from "../components/NavBar";
+import RouteSelect from "../components/RouteSelect";
+import PrimaryNavBar from "../components/PrimaryNavBar";
 
-const Home = () => {
+export default function Home() {
   return (
-    <div className="relative h-full bg-gradient-to-t from-[#3A66A3] from-4% via-[#9DB2D1] via-72% to-[#FFFFFF] to-100% flex flex-col items-center justify-center ">
-      
-      <NavBar/>
+    <div className="relative flex h-screen flex-col bg-gradient-to-t from-[#3A66A3] from-4% via-[#9DB2D1] via-72% to-[#FFFFFF] to-100%">
+      <RouteSelect />
+      <PrimaryNavBar />
     </div>
   );
-};
-
-export default Home;
+}
