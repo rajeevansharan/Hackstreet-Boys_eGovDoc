@@ -4,7 +4,7 @@ import { TfiList } from "react-icons/tfi";
 import { FaRegBell } from "react-icons/fa";
 import { FaRegUser } from "react-icons/fa6";
 
-function NavBar() {
+function PrimaryNavBar() {
   const items = [
     { label: "Home", Icon: IoHomeOutline },
     { label: "Requests", Icon: TfiList },
@@ -28,4 +28,4 @@ function NavBar() {
   );
 }
 
-export default NavBar;
+export default PrimaryNavBar;
