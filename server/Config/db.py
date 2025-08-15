@@ -18,6 +18,7 @@ try:
     salary_particular_collection = db["Salary_Particular"]
     appointments_collection = db["Appointments"]
     services_collection = db["Services"]
+    feedback_collection = db["Feedback"]
     logger.info("Collections initialized successfully.")
 except Exception as e:
     logger.error(f"Failed to connect to MongoDB: {e}")
