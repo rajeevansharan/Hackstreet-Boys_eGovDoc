@@ -24,29 +24,27 @@ export default function AccountPage() {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center p-4">
-      <div className="max-w-md w-full p-6 border border-white/30 bg-white/20 shadow-lg backdrop-blur-md rounded-3xl">
-        {/* Top Section */}
-        <div className="flex justify-between items-center mb-6">
+    <div className="flex min-h-screen items-center justify-center p-4">
+      <div className="w-full max-w-md rounded-3xl border border-white/30 bg-white/20 p-6 shadow-lg backdrop-blur-md">
+        <div className="mb-6 flex items-center justify-between">
           <h1 className="text-2xl font-bold">Account</h1>
           <button
             onClick={handleLogout}
-            className="px-4 py-2 rounded-full bg-gray-200 hover:bg-gray-300"
+            className="rounded-full bg-gray-200 px-4 py-2 hover:bg-gray-300"
           >
             Log out
           </button>
         </div>
 
-        {/* Profile Image */}
-        <div className="relative w-28 h-28 mx-auto mb-6">
+        <div className="relative mx-auto mb-6 h-28 w-28">
           <img
             src={profileImage || "https://via.placeholder.com/150"}
             alt="Profile"
-            className="w-full h-full rounded-full object-cover border"
+            className="h-full w-full rounded-full border object-cover"
           />
           <label
             htmlFor="profileImageInput"
-            className="absolute bottom-1 right-1 bg-gray-800 text-white p-2 rounded-full cursor-pointer"
+            className="absolute right-1 bottom-1 cursor-pointer rounded-full bg-gray-800 p-2 text-white"
           >
             <FaCamera size={14} />
           </label>
@@ -59,57 +57,57 @@ export default function AccountPage() {
           />
         </div>
 
-        {/* Form */}
         <div className="space-y-4">
           <div>
-            <label className="block text-sm font-medium mb-1">Name</label>
+            <label className="mb-1 block text-sm font-medium">Name</label>
             <input
               type="text"
               value={name}
               onChange={(e) => setName(e.target.value)}
-              className="w-full border rounded-md px-3 py-2 focus:outline-none focus:ring focus:ring-blue-300"
+              className="w-full rounded-md border px-3 py-2 focus:ring focus:ring-blue-300 focus:outline-none"
             />
           </div>
 
           <div>
-            <label className="block text-sm font-medium mb-1">Email</label>
+            <label className="mb-1 block text-sm font-medium">Email</label>
             <input
               type="email"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
-              className="w-full border rounded-md px-3 py-2 focus:outline-none focus:ring focus:ring-blue-300"
+              className="w-full rounded-md border px-3 py-2 focus:ring focus:ring-blue-300 focus:outline-none"
             />
           </div>
 
           <div>
-            <label className="block text-sm font-medium mb-1">Password</label>
+            <label className="mb-1 block text-sm font-medium">Password</label>
             <input
               type="password"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
-              className="w-full border rounded-md px-3 py-2 focus:outline-none focus:ring focus:ring-blue-300"
+              className="w-full rounded-md border px-3 py-2 focus:ring focus:ring-blue-300 focus:outline-none"
             />
           </div>
 
           <div>
-            <label className="block text-sm font-medium mb-1">Date of Birth</label>
+            <label className="mb-1 block text-sm font-medium">
+              Date of Birth
+            </label>
             <input
               type="date"
               value={dob}
               onChange={(e) => setDob(e.target.value)}
-              className="w-full border rounded-md px-3 py-2 focus:outline-none focus:ring focus:ring-blue-300"
+              className="w-full rounded-md border px-3 py-2 focus:ring focus:ring-blue-300 focus:outline-none"
             />
           </div>
 
           <button
             onClick={handleSave}
-            className="w-full bg-blue-500 text-white py-2 rounded-full hover:bg-blue-600"
+            className="w-full rounded-full bg-blue-500 py-2 text-white hover:bg-blue-600"
           >
             Save changes
           </button>
         </div>
       </div>
-      <PrimaryNavBar />
     </div>
   );
 }
