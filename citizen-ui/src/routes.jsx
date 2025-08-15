@@ -1,5 +1,5 @@
 import { createBrowserRouter } from "react-router-dom";
-import TravelWarrant from "./pages/Home";
+import TravelWarrant from "./pages/TravelWarrantForm";
 
 const router = createBrowserRouter([
   {
