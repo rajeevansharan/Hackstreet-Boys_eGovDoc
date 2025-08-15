@@ -1,2 +1,4 @@
 hace/
 __pycache__/
+.env
+venv
