@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { Link } from "react-router-dom";
 import { IoHomeOutline } from "react-icons/io5";
 import { TfiList } from "react-icons/tfi";
 import { FaRegBell } from "react-icons/fa";
@@ -8,7 +9,7 @@ function PrimaryNavBar() {
   const [active, setActive] = useState(0);
 
   const items = [
-    { label: "Home", Icon: IoHomeOutline },
+    { path: "/", label: "Home", Icon: IoHomeOutline },
     { label: "Requests", Icon: TfiList },
     { label: "Notifications", Icon: FaRegBell },
     { label: "Account", Icon: FaRegUser },
@@ -21,10 +22,11 @@ function PrimaryNavBar() {
           className="pointer-events-none absolute inset-y-1 w-1/4 rounded-full bg-white/15 shadow-[inset_0_1px_0_rgba(255,255,255,.55),0_8px_32px_rgba(0,0,0,.25)] ring-1 ring-white/40 transition-transform duration-300 ease-out"
           style={{ transform: `translateX(${active * 100}%)` }}
         />
-        {items.map(({ label, Icon }, index) => {
+        {items.map(({ label, Icon, path }, index) => {
           const isActive = index === active;
           return (
-            <div
+            <Link
+              to={path}
               key={label}
               type="button"
               onClick={() => setActive(index)}
@@ -42,7 +44,7 @@ function PrimaryNavBar() {
               >
                 {label}
               </span>
-            </div>
+            </Link>
           );
         })}
       </div>
