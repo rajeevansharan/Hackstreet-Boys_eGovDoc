@@ -1,4 +1,4 @@
-import { Link } from "react-router-dom"; // Only if you are using react-router
+import { Link } from "react-router-dom";
 
 const Home = () => {
   return (
