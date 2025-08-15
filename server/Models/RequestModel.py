@@ -15,6 +15,7 @@ class Request(BaseModel):
     resource_id: str = Field(..., example="")
     resource_name: str = Field(..., example="")
     priority: str = Field(..., example="high")
-    # Option 1: Store as separate date and time strings
+    Area: str = Field(..., examples="Jaffna")
     requestAppointmentDate: Union[str, datetime] = Field(..., example="2025-08-20", description="Requested appointment date")
     requestAppointmentTime: Union[str, datetime] = Field(..., example="10:30", description="Requested appointment time")
+
