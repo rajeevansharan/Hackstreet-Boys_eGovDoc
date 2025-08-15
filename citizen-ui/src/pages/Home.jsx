@@ -1,8 +1,9 @@
 import { Link } from "react-router-dom";
+import PrimaryNavBar from "../components/PrimaryNavBar";
 
 const Home = () => {
   return (
-    <div>
+    <div className="relative flex h-full flex-col items-center justify-center bg-gradient-to-t from-[#3A66A3] from-4% via-[#9DB2D1] via-72% to-[#FFFFFF] to-100%">
       <h1 className="mt-25 mb-6 ml-5 text-4xl font-extrabold">Home</h1>
 
       <div className="mt-6 mb-11 grid grid-cols-2 gap-4">
@@ -45,8 +46,9 @@ const Home = () => {
         <button className="flex items-center gap-1 text-sm font-semibold text-black hover:underline">
           Track →
         </button>
+<PrimaryNavBar />
       </div>
-    </div>
+
   );
 };
 

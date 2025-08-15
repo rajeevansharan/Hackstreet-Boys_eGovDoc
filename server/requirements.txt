@@ -1,0 +1,8 @@
+fastapi
+uvicorn[standard]
+pydantic
+motor
+python-multipart
+qrcode[pil]
+python-jose[cryptography]
+pymongo

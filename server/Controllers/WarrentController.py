@@ -1,19 +1,26 @@
-from fastapi import APIRouter, HTTPException
+from fastapi import HTTPException
 from typing import List
-from server.Models.WarrentModel import WarrentModel
-from server.Config.db import warrent_collection
-from bson import ObjectId
 
-warrent_router = APIRouter()
+from Models.WarrentModel import WarrentModel
+from Config.db import warrent_collection
+from Schemas.WarrentSchema import CreateWarrentSchema
 
 
-@warrent_router.get("/warrents", response_model=List[WarrentModel])
-async def get_Warrents():
+async def create_warrent_logic(warrent: CreateWarrentSchema) -> dict:
+    try:
+        warrent_dict = warrent.dict()
+        result = await warrent_collection.insert_one(warrent_dict)
+        return {"inserted_id": str(result.inserted_id)}
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
+
+async def get_Warrents_logic() -> List[WarrentModel]:
     try:
         warrents_cursor = warrent_collection.find()
         warrents = []
         async for warrent in warrents_cursor:
-            warrent["_id"] = str(warrent["_id"])  # Convert ObjectId to string
+            warrent["_id"] = str(warrent["_id"])
             warrents.append(WarrentModel(**warrent))
         return warrents
     except Exception as e:

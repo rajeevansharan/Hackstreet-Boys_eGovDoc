@@ -3,8 +3,7 @@ from datetime import datetime
 from typing import Optional
 
 
-class WarrentModel(BaseModel):
-    id: Optional[str] = Field(None, alias="_id", description="MongoDB document ID")
+class CreateWarrentSchema(BaseModel):
     fullname: str = Field(..., example="John Doe")
     pensionNo: str = Field(..., example="PEN123456")
     placeOfPaymentPension: str = Field(..., example="Colombo")
