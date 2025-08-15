@@ -20,6 +20,7 @@ async def create_salary_particular(
     PriorityLevel: str = Form(...),
     AppointmentDate: str = Form(...),  # Will be parsed to datetime
     UserId: str = Form(...),
+    Area: str = Form(...),
     AppointmentTime: Optional[str] = Form(None),
     AdditionalDetails: Optional[str] = Form(None),
     files: Optional[List[UploadFile]] = File(None)
@@ -41,13 +42,10 @@ async def create_salary_particular(
         AppointmentDate=appointment_date,
         AppointmentTime=AppointmentTime,
         AdditionalDetails=AdditionalDetails,
-        UserId=UserId
+        UserId=UserId,
+        Area=Area
     )
     
     return await create_salary_particular_logic(salary_data, files)
 
 
-@salary_router.get("/user/{user_id}/appointment/{appointment_id}", response_model=dict)
-async def get_salary_particular_by_user_and_appointment(user_id: str, appointment_id: str):
-    """Get salary particular by user ID and appointment ID"""
-    return await get_salary_particular_by_user_and_appointment_logic(user_id, appointment_id)

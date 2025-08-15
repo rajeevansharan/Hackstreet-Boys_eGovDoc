@@ -26,3 +26,4 @@ class salaryModel(BaseModel):
     supporting_documents: Optional[List[SupportingDocument]] = Field([], description="List of uploaded supporting documents")
     created_at: datetime = Field(default_factory=datetime.utcnow, description="Record creation timestamp")
     appointment_id: str = Field(..., example="689e496763c831f182b0f00c", description="Associated appointment ID")
+    Area: str = Field(...,example="jaffna")
