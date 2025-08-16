@@ -2,7 +2,7 @@ import { useState } from "react";
 import SecondaryNavBar from "../components/SecondaryNavBar";
 import RequestList from "../components/RequestList";
 
-const TABS = ["All", "Completed", "Submitted", "Rejected"];
+const TABS = ["All", "Completed", "Pending", "Rejected"];
 
 const RequestPage = ({ serviceId, userId }) => {
   const [active, setActive] = useState(0);

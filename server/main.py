@@ -6,6 +6,7 @@ from Routes.SalaryRoutes import salary_router
 from Routes.RequestRoute import request_router
 from Routes.FeedbackRoutes import feedback_router
 from Routes.AuthRoutes import auth_router
+from Routes.ProfileRoutes import officer_profile_router
 
 
 app = FastAPI()
@@ -36,3 +37,4 @@ app.include_router(salary_router)
 app.include_router(feedback_router)
 app.include_router(request_router)
 app.include_router(auth_router)
+app.include_router(officer_profile_router)

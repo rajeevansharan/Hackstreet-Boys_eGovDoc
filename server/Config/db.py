@@ -22,6 +22,7 @@ try:
     employees_collection = db["GOV_Employees"]
     users_collection = db["Users"]
     feedback_collection = db["Feedback"]
+    officer_profile_collection = db["Profile"]  
     logger.info("Collections initialized successfully.")
 except Exception as e:
     logger.error(f"Failed to connect to MongoDB: {e}")
