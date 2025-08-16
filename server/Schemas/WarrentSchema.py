@@ -1,6 +1,6 @@
 from pydantic import BaseModel, Field
 from datetime import datetime
-from typing import Optional
+from typing import Optional, List
 
 
 class CreateWarrentSchema(BaseModel):
@@ -10,7 +10,7 @@ class CreateWarrentSchema(BaseModel):
     DateOfRetirement: datetime = Field(..., example="2025-08-13T00:00:00")
     AnnualSalaryAtRetirementDate: float = Field(..., example=50000.0)
     TravelClass: str = Field(..., example="First")
-    MartialStatus: str = Field(..., example="Married")
+    MaritalStatus: str = Field(..., example="Married")
     OrdinarysingleStatus: str = Field(..., example="Single")
     TravelType: str = Field(..., example="Official")
     DependantChildName: str = Field(..., example="Jane Doe")
@@ -20,11 +20,10 @@ class CreateWarrentSchema(BaseModel):
     TravelDate: datetime = Field(..., example="2025-09-01T00:00:00")
     ReturnDate: datetime = Field(..., example="2025-09-10T00:00:00")
     PriorityLevel: str = Field(..., example="High")
-    RequiredCompletionDate: datetime = Field(..., example="2025-08-20T00:00:00")
     SpouseName: Optional[str] = Field(None, example="Jane Doe")
     SpouseDepartment: Optional[str] = Field(None, example="Finance")
-    UserId: str = Field(..., example="user123")
     AppointmentDate: str = Field(..., example="2025-08-15")
     AppointmentTime: str = Field(..., example="10:00")
     Area: str = Field(..., example="Colombo")
-    
+    UserId: str = Field(..., example="user123")
+
