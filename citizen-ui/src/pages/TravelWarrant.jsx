@@ -172,8 +172,12 @@
             !formData.appointmentDate || !formData.appointmentTime || !formData.priorityLevel) {
           alert("Please fill in all required fields");
           return;
+          
         }
-
+  if (!formData.informationAccurate) {
+    alert('Please confirm that all information provided is accurate and complete before submitting.');
+    return;
+  }
         try {
           // Create FormData object for the multipart/form-data request
           const requestFormData = new FormData();
@@ -778,11 +782,16 @@
           Clear Form
         </button>
         <button
-          onClick={handleSubmitRequest}
-          className="w-full py-3 bg-white/30 backdrop-blur-sm rounded-full text-black font-medium hover:bg-white/40 transition-colors focus:outline-none focus:ring-2 focus:ring-blue-400"
-        >
-          Submit the Request
-        </button>
+  onClick={handleSubmitRequest}
+  disabled={!formData.informationAccurate}
+  className={`w-full py-3 backdrop-blur-sm rounded-full font-medium transition-colors focus:outline-none focus:ring-2 focus:ring-blue-400 ${
+    formData.informationAccurate 
+      ? 'bg-white/30 text-black hover:bg-white/40' 
+      : 'bg-gray-300/50 text-gray-500 cursor-not-allowed'
+  }`}
+>
+  Submit the Request
+</button>
       </div>
     </div>
     );
