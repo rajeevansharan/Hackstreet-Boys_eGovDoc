@@ -15,42 +15,45 @@ function Login() {
 
   const apiBase = import.meta.env.VITE_API_BASE || "http://localhost:8000";
 
-  async function handleSubmit(e) {
-    e.preventDefault();
-    if (loading) return;
-    setError("");
-    setLoading(true);
+async function handleSubmit(e) {
+  e.preventDefault();
+  if (loading) return;
+  setError("");
+  setLoading(true);
+  
+  try {
+    const form = new URLSearchParams();
+    form.append("username", username.trim());
+    form.append("password", password);
+    form.append("grant_type", "password"); // Change from "" to "password"
+    
+    const res = await fetch(`${apiBase}/auth/login`, {
+      method: "POST",
+      body: form,
+      headers: { "Content-Type": "application/x-www-form-urlencoded" },
+      credentials: "include",
+    });
+    
+    const data = await res.json().catch(() => ({}));
+    if (!res.ok) {
+      throw new Error(data.detail || data.message || "Login failed");
+    }
+    
+    // Store user info
     try {
-      const form = new URLSearchParams();
-      form.append("username", username.trim());
-      form.append("password", password);
-      // OAuth2 spec requires 'grant_type' but FastAPI's OAuth2PasswordRequestForm expects it optionally; include blank
-      form.append("grant_type", "");
-      const res = await fetch(`${apiBase}/auth/login`, {
-        method: "POST",
-        body: form,
-        headers: { "Content-Type": "application/x-www-form-urlencoded" },
-        credentials: "include", // so cookie is stored
-      });
-      const data = await res.json().catch(() => ({}));
-      if (!res.ok) {
-        throw new Error(data.detail || data.message || "Login failed");
-      }
-      // optional persistence
-      try {
-        localStorage.setItem(
-          "egovdoc:user",
-          JSON.stringify({ username: data.username, role: data.role }),
-        );
-      } catch {
+      localStorage.setItem(
+        "egovdoc:user",
+        JSON.stringify({ username: data.username, role: data.role }),
+      );
+    } catch {
         // ignore persistence errors (e.g., private mode)
       }
-      navigate("/enter-phone", { replace: true });
-    } catch (err) {
-      setError(err.message || "Unknown error");
-    } finally {
-      setLoading(false);
-    }
+    navigate("/enter-phone", { replace: true });
+  } catch (err) {
+    setError(err.message || "Unknown error");
+  } finally {
+    setLoading(false);
+  }
   }
 
   const disabled = loading || !username.trim() || !password;
