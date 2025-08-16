@@ -1,8 +1,8 @@
-import Profile from "../pages/Profile";
+//import Profile from "../pages/Profile";
 const Home = () => {
   return(
      <div>
-         <Profile />
+         
      </div>
   );
 };

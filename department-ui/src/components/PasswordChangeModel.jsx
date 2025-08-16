@@ -22,7 +22,7 @@ const PasswordChangeModal = ({
   });
   const [isChangingPassword, setIsChangingPassword] = useState(false);
 
-  // Reset form when modal opens/closes
+  
   useEffect(() => {
     if (isOpen) {
       setPasswordData({
@@ -114,7 +114,7 @@ const PasswordChangeModal = ({
     if (!isChangingPassword) onClose();
   };
 
-  // Handle escape key
+ 
   useEffect(() => {
     const handleEscape = (e) => {
       if (e.key === 'Escape' && isOpen) handleClose();
@@ -149,7 +149,7 @@ const PasswordChangeModal = ({
         )}
 
         <div className="space-y-3">
-          {/* Current Password */}
+      
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-1">
               Current Password *
@@ -179,7 +179,6 @@ const PasswordChangeModal = ({
             </div>
           </div>
 
-          {/* New Password */}
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-1">
               New Password *
@@ -218,7 +217,7 @@ const PasswordChangeModal = ({
             </div>
           </div>
 
-          {/* Confirm Password */}
+         
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-1">
               Confirm New Password *
@@ -248,7 +247,7 @@ const PasswordChangeModal = ({
             </div>
           </div>
 
-          {/* Password Requirements */}
+         
           <div className="bg-gray-50 p-3 rounded text-sm text-gray-600">
             <p className="font-semibold mb-1">Password Requirements:</p>
             <ul className="list-disc list-inside space-y-1">
@@ -264,7 +263,7 @@ const PasswordChangeModal = ({
             </ul>
           </div>
 
-          {/* Buttons */}
+         
           <div className="flex justify-end gap-3 mt-6">
             <button
               type="button"
