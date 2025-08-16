@@ -1,12 +1,10 @@
 import { createBrowserRouter, redirect } from "react-router-dom";
 import EnterPhoneNumber from "./pages/EnterPhoneNumber";
 import Home from "./pages/Home";
-<<<<<<< HEAD
-import TravelWarrantForm from './pages/TravelWarrant'
-=======
 import Login from "./pages/Login";
 import Signup from "./pages/Signup"; // added
 import VerifyOTP from "./pages/VerifyOTP";
+import TravelWarrantForm from "./pages/TravelWarrant";
 
 // Simple auth gate using presence of localStorage egovdoc:user
 function requireAuth() {
@@ -18,7 +16,6 @@ function requireAuth() {
   }
   return null;
 }
->>>>>>> 562c0ebe51e8af6e4a8ad83d201d675ccd0ddf6f
 
 const router = createBrowserRouter([
   { path: "/login", element: <Login /> },
@@ -30,14 +27,11 @@ const router = createBrowserRouter([
     loader: requireAuth,
     children: [{ index: true, element: <Home /> }],
   },
-<<<<<<< HEAD
   {
     path: "/travel-warrant",
     element: <TravelWarrantForm />,
-  }
-=======
+  },
   { path: "*", loader: () => redirect("/login") },
->>>>>>> 562c0ebe51e8af6e4a8ad83d201d675ccd0ddf6f
 ]);
 
 export default router;
