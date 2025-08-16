@@ -1,12 +1,16 @@
 import { useState } from "react";
 import { FaCamera } from "react-icons/fa";
+import { useNavigate } from "react-router-dom";
 
 export default function AccountPage() {
+  const navigate = useNavigate();
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [dob, setDob] = useState("");
   const [profileImage, setProfileImage] = useState(null);
+  
+  const apiBase = import.meta.env.VITE_API_BASE || "http://localhost:8000";
 
   const handleImageChange = (e) => {
     if (e.target.files && e.target.files[0]) {
@@ -14,9 +18,27 @@ export default function AccountPage() {
     }
   };
 
-  const handleLogout = () => {
-    alert("Logged out!");
+  const handleLogout = async () => {
+    try {
+      // 1. Call backend logout endpoint (optional but recommended)
+      await fetch(`${apiBase}/auth/logout`, {
+        method: "POST",
+        credentials: "include",
+      });
+      
+      // 2. Clear local storage
+      localStorage.removeItem("egovdoc:user");
+      
+      // 3. Redirect to login page
+      navigate("/login");
+    } catch (error) {
+      console.error("Logout failed:", error);
+      // Even if API call fails, still clear local storage and redirect
+      localStorage.removeItem("egovdoc:user");
+      navigate("/login");
+    }
   };
+
 
   const handleSave = () => {
     alert("Changes saved!");
