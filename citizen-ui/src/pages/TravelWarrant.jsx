@@ -166,84 +166,79 @@
     console.log('Form cleared');
   };
 
-      const handleSubmitRequest = async () => {
-        // Input validation
-        if (!formData.fullName || !formData.pensionNumber || !formData.gsDivision || 
-            !formData.appointmentDate || !formData.appointmentTime || !formData.priorityLevel) {
-          alert("Please fill in all required fields");
-          return;
-          
-        }
+     const handleSubmitRequest = async () => {
+  // Input validation
+  if (!formData.fullName || !formData.pensionNumber || !formData.gsDivision || 
+      !formData.appointmentDate || !formData.appointmentTime || !formData.priorityLevel) {
+    alert("Please fill in all required fields");
+    return;
+  }
+  
   if (!formData.informationAccurate) {
     alert('Please confirm that all information provided is accurate and complete before submitting.');
     return;
   }
-        try {
-          // Create FormData object for the multipart/form-data request
-          const requestFormData = new FormData();
-          
-          // Map form fields to backend field names
-          requestFormData.append("fullname", formData.fullName);
-          requestFormData.append("pensionNo", formData.pensionNumber);
-          requestFormData.append("placeOfPaymentPension", formData.paymentPlace);
-          requestFormData.append("DateOfRetirement", formData.retirementDate);
-          requestFormData.append("AnnualSalaryAtRetirementDate", formData.annualSalary);
-          requestFormData.append("TravelClass", formData.travelClass);
-          requestFormData.append("MaritalStatus", formData.maritalStatus);
-          requestFormData.append("OrdinarysingleStatus", formData.ticketType);
-          requestFormData.append("TravelType", "Official"); // Default value or add to form
-          requestFormData.append("DependantChildName", formData.dependantChildren || "None");
-          requestFormData.append("DependantChildAge", formData.childrenAges ? parseInt(formData.childrenAges) : 0);
-          requestFormData.append("FromStation", formData.fromStation);
-          requestFormData.append("ToStation", formData.toStation);
-          requestFormData.append("TravelDate", formData.outwardJourneyDate);
-          requestFormData.append("ReturnDate", formData.returnJourneyDate);
-          requestFormData.append("PriorityLevel", formData.priorityLevel);
-          requestFormData.append("SpouseName", formData.spouseName || "");
-          requestFormData.append("SpouseDepartment", formData.spouseDepartment || "");
-          requestFormData.append("AppointmentDate", formData.appointmentDate);
-          requestFormData.append("AppointmentTime", formData.appointmentTime);
-          requestFormData.append("Area", formData.gsDivision);
-          
-          // Add uploaded files to form data
-          if (uploadedFiles.length > 0) {
-            // Since we already have the files in uploadedFiles state, we need to get the actual File objects
-            // You might need to modify this based on how your file uploads are structured
-            for (const fileData of uploadedFiles) {
-              // If you have a URL to the file or the binary data, you can fetch it and append
-              const response = await fetch(fileData.url);
-              const blob = await response.blob();
-              const file = new File([blob], fileData.name, { type: 'application/pdf' });
-              requestFormData.append("files", file);
-            }
-          }
-          
-          // Get API base URL from environment or use default
-          const apiBase = import.meta.env.VITE_API_BASE || "http://localhost:8000";
-          
-          // Send request to backend
-          const response = await fetch(`${apiBase}/warrents/createwarrents`, {
-            method: 'POST',
-            body: requestFormData,
-            credentials: 'include', // Include cookies for authentication
-          });
-          
-          if (!response.ok) {
-            const errorData = await response.json();
-            throw new Error(errorData.detail || 'Failed to submit warrant request');
-          }
-          
-          const result = await response.json();
-          alert('Travel warrant submitted successfully!');
-          console.log('Submission result:', result);
-          
-          navigate('/requests');
-          
-        } catch (error) {
-          console.error('Error submitting travel warrant:', error);
-          alert(`Error submitting form: ${error.message}`);
-        }
-      };
+  
+  try {
+    // Create FormData object for the multipart/form-data request
+    const requestFormData = new FormData();
+    
+    // Map form fields to backend field names
+    requestFormData.append("fullname", formData.fullName);
+    requestFormData.append("pensionNo", formData.pensionNumber);
+    requestFormData.append("placeOfPaymentPension", formData.paymentPlace);
+    requestFormData.append("DateOfRetirement", formData.retirementDate);
+    requestFormData.append("AnnualSalaryAtRetirementDate", formData.annualSalary);
+    requestFormData.append("TravelClass", formData.travelClass);
+    requestFormData.append("MaritalStatus", formData.maritalStatus);
+    requestFormData.append("OrdinarysingleStatus", formData.ticketType);
+    requestFormData.append("TravelType", "Official"); // Default value or add to form
+    requestFormData.append("DependantChildName", formData.dependantChildren || "None");
+    requestFormData.append("DependantChildAge", formData.childrenAges ? parseInt(formData.childrenAges) : 0);
+    requestFormData.append("FromStation", formData.fromStation);
+    requestFormData.append("ToStation", formData.toStation);
+    requestFormData.append("TravelDate", formData.outwardJourneyDate);
+    requestFormData.append("ReturnDate", formData.returnJourneyDate);
+    requestFormData.append("PriorityLevel", formData.priorityLevel);
+    requestFormData.append("SpouseName", formData.spouseName || "");
+    requestFormData.append("SpouseDepartment", formData.spouseDepartment || "");
+    requestFormData.append("AppointmentDate", formData.appointmentDate);
+    requestFormData.append("AppointmentTime", formData.appointmentTime);
+    requestFormData.append("Area", formData.gsDivision);
+    
+    // Add uploaded files to form data using the actual File objects
+    if (uploadedFileObjects.length > 0) {
+      for (const file of uploadedFileObjects) {
+        requestFormData.append("files", file);
+      }
+    }
+    
+    // Get API base URL from environment or use default
+    const apiBase = import.meta.env.VITE_API_BASE || "http://localhost:8000";
+    
+    // Send request to backend
+    const response = await fetch(`${apiBase}/warrents/createwarrents`, {
+      method: 'POST',
+      body: requestFormData,
+      credentials: 'include', // Include cookies for authentication
+    });
+    
+    if (!response.ok) {
+      const errorData = await response.json();
+      throw new Error(errorData.detail || 'Failed to submit warrant request');
+    }
+    
+    const result = await response.json();
+    alert('Travel warrant submitted successfully!');
+    console.log('Submission result:', result);
+    
+    navigate('/requests');
+    
+  } catch (error) {
+    console.error('Error submitting travel warrant:', error);
+    alert(`Error submitting form: ${error.message}`);
+  }
+};
 
   const handleFileUpload = () => {
     fileInputRef.current?.click();
@@ -282,9 +277,16 @@
         }
       };
 
-  const handleFileRemove = (fileId) => {
+const handleFileRemove = (fileId) => {
+  // Find the index of the file to remove
+  const fileIndex = uploadedFiles.findIndex(file => file.fileId === fileId);
+  
+  if (fileIndex !== -1) {
+    // Remove from both uploadedFiles and uploadedFileObjects arrays
     setUploadedFiles(prev => prev.filter(file => file.fileId !== fileId));
-  };
+    setUploadedFileObjects(prev => prev.filter((_, index) => index !== fileIndex));
+  }
+};
 
   const formatFileSize = (bytes) => {
     if (bytes === 0) return '0 Bytes';
