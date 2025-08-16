@@ -2,6 +2,7 @@ from fastapi import APIRouter, Depends, HTTPException, status, Form
 from fastapi.security import OAuth2PasswordRequestForm
 from fastapi import Response
 from Models.AuthModels import TokenResponse
+from utils.auth import get_user
 
 from Models.AuthModels import (
     UserCreate, 
@@ -20,7 +21,12 @@ from Controllers.AuthController import (
     employee_login_logic,
     request_password_reset_logic,
     verify_reset_otp_logic,
-    reset_password_logic
+    reset_password_logic,
+    logout_logic,
+    login_verify_credentials,
+    login_verify_otp,
+
+    
 )
 from utils.auth import get_current_active_user, get_employee_only
 
@@ -109,3 +115,30 @@ async def admin_panel(current_employee = Depends(get_employee_only)):
         "role": current_employee["role"],
         "division": current_employee["DSDivision"]
     }
+
+# Add new routes
+@auth_router.post("/login-verify", response_model=dict)
+async def login_step1(form_data: OAuth2PasswordRequestForm = Depends()):
+    """First step of login - verify credentials and send OTP"""
+    return await login_verify_credentials(form_data.username, form_data.password)
+
+@auth_router.post("/login-verify-otp", response_model=TokenResponse)
+async def login_step2(data: EmailOTPVerify, response: Response):
+    """Second step of login - verify OTP and complete login"""
+    return await login_verify_otp(data.email, data.otp, response)
+
+
+@auth_router.post("/get-user-email", response_model=dict)
+async def get_user_email(data: dict):
+    """Get email for a user by username"""
+    username = data.get("username")
+    if not username:
+        raise HTTPException(status_code=400, detail="Username is required")
+    
+    user = await get_user(username)
+    if not user:
+        # Don't reveal if user exists or not
+        return {"message": "If username exists, a reset link will be sent"}
+    
+    # Return the email associated with the username
+    return {"email": user.email}
