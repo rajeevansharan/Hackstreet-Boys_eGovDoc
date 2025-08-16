@@ -25,6 +25,8 @@ from Controllers.AuthController import (
     logout_logic,
     login_verify_credentials,
     login_verify_otp,
+    employee_login_verify_credentials,
+    employee_login_verify_otp,
 
     
 )
@@ -142,3 +144,14 @@ async def get_user_email(data: dict):
     
     # Return the email associated with the username
     return {"email": user.email}
+
+
+@auth_router.post("/employee-login-verify", response_model=dict)
+async def employee_login_step1(form_data: OAuth2PasswordRequestForm = Depends()):
+    """First step of employee login - verify credentials and send OTP to email"""
+    return await employee_login_verify_credentials(form_data.username, form_data.password)
+
+@auth_router.post("/employee-login-verify-otp", response_model=TokenResponse)
+async def employee_login_step2(data: EmailOTPVerify, response: Response):
+    """Second step of employee login - verify OTP and complete login"""
+    return await employee_login_verify_otp(data.email, data.otp, response)

@@ -13,7 +13,8 @@ app = FastAPI()
 
 # Configure CORS
 origins = [
-    "http://localhost:5173",          # Development frontend
+    "http://localhost:5173",   
+    "http://localhost:5174" ,      # Development frontend
     "http://localhost:3000",          # Another possible dev port
     "https://your-production-url.com"  # Production frontend
 ]
