@@ -23,7 +23,7 @@ const SalaryParticularPage = () => {
 
   const handleBack = () => {
     if (currentStep === 1) {
-      navigate("/*");
+      navigate("/");
     } else {
       prevStep();
     }
@@ -35,13 +35,13 @@ const SalaryParticularPage = () => {
 
   const handleCancel = () => {
     resetForm();
-    navigate("/*");
+    navigate("/");
   };
 
   const handleSubmit = () => {
     console.log("Submit Request:", formData);
     resetForm();
-    navigate("/*");
+    navigate("/");
   };
 
   return (

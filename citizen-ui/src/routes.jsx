@@ -36,10 +36,10 @@ const router = createBrowserRouter([
     path: "/travel-warrant",
     element: <TravelWarrantForm />
   },
-  {
-    path: "/salary",
-    element: <SalaryParticularPage />,
-  },
+{
+  path: "/salary-particular",
+  element: <SalaryParticularPage />,
+},
   { path: "*", loader: () => redirect("/login") },
 ]);
 
