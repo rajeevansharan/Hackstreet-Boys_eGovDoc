@@ -106,9 +106,8 @@ async def create_appointment(
 
 
 @warrent_router.get("/gs/requests/{gs_handler_id}", response_model=List[dict])
-async def get_gs_requests(gs_handler_id: str, current_user=Depends(get_gs_only)):
+async def get_gs_requests(gs_handler_id: str):
     from Controllers.WarrentController import get_requests_for_gs
-
     return await get_requests_for_gs(gs_handler_id)
 
 

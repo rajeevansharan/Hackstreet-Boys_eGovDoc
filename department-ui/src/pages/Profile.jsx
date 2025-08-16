@@ -152,8 +152,6 @@ const OfficerProfile = () => {
     try {
       
       const formDataToSend = new FormData();
-      
-      
       formDataToSend.append('phone', formData.phone);
       formDataToSend.append('officeAddress', formData.officeAddress);
       formDataToSend.append('email', formData.email);
