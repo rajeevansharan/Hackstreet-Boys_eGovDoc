@@ -7,7 +7,7 @@ function SecondaryNavBar({
   items = [
     { label: "All" },
     { label: "Completed" },
-    { label: "Submitted" },
+    { label: "Pending" },
     { label: "Rejected" },
   ],
 }) {
