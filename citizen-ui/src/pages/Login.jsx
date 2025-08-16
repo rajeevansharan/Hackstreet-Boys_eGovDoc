@@ -45,7 +45,7 @@ function Login() {
       } catch {
         // ignore persistence errors (e.g., private mode)
       }
-      navigate("/", { replace: true });
+      navigate("/enter-phone", { replace: true });
     } catch (err) {
       setError(err.message || "Unknown error");
     } finally {
@@ -60,51 +60,55 @@ function Login() {
       <header className="py-4 text-center text-4xl font-semibold tracking-tight">
         eGovDoc
       </header>
-      <h1 className="mt-6 text-center text-2xl font-bold">Welcome Back!</h1>
-      <form
-        onSubmit={handleSubmit}
-        className="mt-8 flex flex-col gap-5 rounded-[40px] border border-black/25 bg-black/5 px-7 pt-8 pb-10 shadow-[inset_0_1px_0_rgba(255,255,255,.45),0_4px_20px_rgba(0,0,0,.15)]"
-      >
-        <h2 className="text-center text-lg font-semibold">
-          Log in to your account
-        </h2>
-        <label className="flex flex-col gap-2 text-sm">
-          <span className="font-medium opacity-90">Username</span>
-          <input
-            type="text"
-            value={username}
-            onChange={(e) => setUsername(e.target.value)}
-            autoComplete="username"
-            className="rounded-xl border border-black/40 bg-white/70 px-4 py-3 text-base ring-0 outline-none placeholder:opacity-50 focus:border-[#2F7496] focus:bg-white"
-            placeholder="Enter your username"
-            required
-          />
-        </label>
-        <label className="flex flex-col gap-2 text-sm">
-          <span className="font-medium opacity-90">Password</span>
-          <input
-            type="password"
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
-            autoComplete="current-password"
-            className="rounded-xl border border-black/40 bg-white/70 px-4 py-3 text-base ring-0 outline-none placeholder:opacity-50 focus:border-[#2F7496] focus:bg-white"
-            placeholder="Enter your password"
-            required
-          />
-        </label>
-        {error && (
-          <p className="rounded-md border border-red-400 bg-red-50 px-3 py-2 text-sm font-medium text-red-700">
-            {error}
-          </p>
-        )}
-        <button
-          type="submit"
-          disabled={disabled}
-          className="mx-auto mt-2 w-full max-w-[240px] rounded-full bg-black px-8 py-4 text-lg font-bold text-white transition-colors disabled:cursor-not-allowed disabled:bg-black/50"
-        >
-          {loading ? "Logging in..." : "Log in"}
-        </button>
-      </form>
+      <div className="flex flex-1 flex-col">
+        <h1 className="mt-6 text-center text-2xl font-bold">Welcome Back!</h1>
+        <div className="flex flex-1 items-center">
+          <form
+            onSubmit={handleSubmit}
+            className="flex w-full flex-col gap-5 rounded-[40px] border border-black/25 bg-black/5 px-7 pt-8 pb-10 shadow-[inset_0_1px_0_rgba(255,255,255,.45),0_4px_20px_rgba(0,0,0,.15)]"
+          >
+            <h2 className="text-center text-lg font-semibold">
+              Log in to your account
+            </h2>
+            <label className="flex flex-col gap-2 text-sm">
+              <span className="font-medium opacity-90">Username</span>
+              <input
+                type="text"
+                value={username}
+                onChange={(e) => setUsername(e.target.value)}
+                autoComplete="username"
+                className="rounded-xl border border-black/40 bg-white/70 px-4 py-3 text-base ring-0 outline-none placeholder:opacity-50 focus:border-[#2F7496] focus:bg-white"
+                placeholder="Enter your username"
+                required
+              />
+            </label>
+            <label className="flex flex-col gap-2 text-sm">
+              <span className="font-medium opacity-90">Password</span>
+              <input
+                type="password"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                autoComplete="current-password"
+                className="rounded-xl border border-black/40 bg-white/70 px-4 py-3 text-base ring-0 outline-none placeholder:opacity-50 focus:border-[#2F7496] focus:bg-white"
+                placeholder="Enter your password"
+                required
+              />
+            </label>
+            {error && (
+              <p className="rounded-md border border-red-400 bg-red-50 px-3 py-2 text-sm font-medium text-red-700">
+                {error}
+              </p>
+            )}
+            <button
+              type="submit"
+              disabled={disabled}
+              className="mx-auto mt-2 w-full max-w-[240px] rounded-full bg-black px-8 py-4 text-lg font-bold text-white transition-colors disabled:cursor-not-allowed disabled:bg-black/50"
+            >
+              {loading ? "Logging in..." : "Log in"}
+            </button>
+          </form>
+        </div>
+      </div>
     </div>
   );
 }
