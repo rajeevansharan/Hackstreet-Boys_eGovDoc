@@ -15,45 +15,43 @@ function Login() {
 
   const apiBase = import.meta.env.VITE_API_BASE || "http://localhost:8000";
 
-async function handleSubmit(e) {
-  e.preventDefault();
-  if (loading) return;
-  setError("");
-  setLoading(true);
-  
-  try {
-    const form = new URLSearchParams();
-    form.append("username", username.trim());
-    form.append("password", password);
-    form.append("grant_type", "password"); // Change from "" to "password"
+  async function handleSubmit(e) {
+    e.preventDefault();
+    if (loading) return;
+    setError("");
+    setLoading(true);
     
-    const res = await fetch(`${apiBase}/auth/login`, {
-      method: "POST",
-      body: form,
-      headers: { "Content-Type": "application/x-www-form-urlencoded" },
-      credentials: "include",
-    });
-    
-    const data = await res.json().catch(() => ({}));
-    if (!res.ok) {
-      throw new Error(data.detail || data.message || "Login failed");
-    }
-    
-    // Store user info
     try {
-      localStorage.setItem(
-        "egovdoc:user",
-        JSON.stringify({ username: data.username, role: data.role }),
-      );
-    } catch {
-        // ignore persistence errors (e.g., private mode)
+      const form = new URLSearchParams();
+      form.append("username", username.trim());
+      form.append("password", password);
+      form.append("grant_type", "password");
+      
+      // Call the first step of login
+      const res = await fetch(`${apiBase}/auth/login-verify`, {
+        method: "POST",
+        body: form,
+        headers: { "Content-Type": "application/x-www-form-urlencoded" },
+        credentials: "include",
+      });
+      
+      const data = await res.json().catch(() => ({}));
+      if (!res.ok) {
+        throw new Error(data.detail || data.message || "Login failed");
       }
-    navigate("/enter-phone", { replace: true });
-  } catch (err) {
-    setError(err.message || "Unknown error");
-  } finally {
-    setLoading(false);
-  }
+      
+      // If successful, navigate to OTP verification with email in state
+      navigate("/verify-otp", { 
+        state: { 
+          email: data.email,
+          context: "login"  // Context helps OTP page know what flow it's in
+        } 
+      });
+    } catch (err) {
+      setError(err.message || "Unknown error");
+    } finally {
+      setLoading(false);
+    }
   }
 
   const disabled = loading || !username.trim() || !password;
@@ -107,11 +105,17 @@ async function handleSubmit(e) {
               disabled={disabled}
               className="mx-auto mt-2 w-full max-w-[240px] rounded-full bg-black px-8 py-4 text-lg font-bold text-white transition-colors disabled:cursor-not-allowed disabled:bg-black/50"
             >
-              {loading ? "Logging in..." : "Log in"}
+              {loading ? "Verifying..." : "Log in"}
             </button>
-            <p className="pt-2 text-center text-xs font-medium opacity-70">
-              Forgot Password?
-            </p>
+            <div className="pt-2 text-center">
+              <button 
+                type="button"
+                onClick={() => navigate("/forgot-password")}
+                className="text-xs font-medium opacity-70 hover:underline"
+              >
+                Forgot Password?
+              </button>
+            </div>
           </form>
         </div>
       </div>
@@ -120,7 +124,7 @@ async function handleSubmit(e) {
           to="/signup"
           className="block w-full rounded-full border border-black/60 px-4 py-3 text-center text-sm font-bold hover:bg-black/5"
         >
-          Don’t have an account? Create one!
+          Don't have an account? Create one!
         </Link>
       </div>
     </div>
