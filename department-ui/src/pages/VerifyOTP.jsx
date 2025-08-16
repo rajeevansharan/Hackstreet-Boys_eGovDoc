@@ -2,12 +2,12 @@ import { useEffect, useRef, useState } from "react";
 import { IoChevronBack } from "react-icons/io5";
 import { useLocation, useNavigate } from "react-router-dom";
 
-// Department: Verify OTP page.
+// Department: Verify OTP page that now works with email verification
 
 export default function VerifyOTP() {
   const navigate = useNavigate();
   const location = useLocation();
-  const phone = location.state?.phone;
+  const { email, phone, context } = location.state || {};
   const [digits, setDigits] = useState(Array(6).fill(""));
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
@@ -15,9 +15,12 @@ export default function VerifyOTP() {
 
   const apiBase = import.meta.env.VITE_API_BASE || "http://localhost:8000";
 
+  // Redirect if we don't have what we need
   useEffect(() => {
-    if (!phone) navigate("/enter-phone", { replace: true });
-  }, [phone, navigate]);
+    if (!email && !phone) {
+      navigate("/login", { replace: true });
+    }
+  }, [email, phone, navigate]);
 
   useEffect(() => {
     inputsRef.current[0]?.focus();
@@ -44,21 +47,60 @@ export default function VerifyOTP() {
     if (disabled) return;
     setError("");
     setLoading(true);
+    
     try {
-      const res = await fetch(`${apiBase}/auth/verify-phone-otp`, {
+      let endpoint;
+      
+      if (context === "employee-login") {
+        // Employee login verification
+        endpoint = "/auth/employee-login-verify-otp";
+      } else if (email) {
+        // Email verification
+        endpoint = "/auth/verify-phone-otp"; // Note: This should be renamed in your backend
+      } else {
+        // Phone verification
+        endpoint = "/auth/verify-phone-otp";
+      }
+      
+      const payload = email ? { email, otp } : { phone, otp };
+      
+      const res = await fetch(`${apiBase}${endpoint}`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ phone, otp }),
+        body: JSON.stringify(payload),
         credentials: "include",
       }).catch(() => null);
+      
       if (!res || !res.ok) {
-        const mock = sessionStorage.getItem("dept:mockOtp");
+        // Handle mock OTP for development (can be removed in production)
+        const mockKey = email ? "dept:mockEmailOtp" : "dept:mockOtp";
+        const mock = sessionStorage.getItem(mockKey);
         if (mock && mock === otp) {
-          console.warn("verify-phone-otp endpoint missing; accepted mock OTP");
+          console.warn("Verification endpoint missing; accepted mock OTP");
         } else {
           throw new Error("Invalid OTP");
         }
+      } else {
+        // If we got a response, try to get user data
+        const data = await res.json().catch(() => ({}));
+        
+        // Store user info after successful verification
+        try {
+          localStorage.setItem(
+            "dept:user",
+            JSON.stringify({ 
+              username: data.username || JSON.parse(localStorage.getItem("dept:temp"))?.username, 
+              role: data.role || "employee" 
+            })
+          );
+          // Clean up temporary storage
+          localStorage.removeItem("dept:temp");
+        } catch (err) {
+          console.error("Failed to store user data:", err);
+        }
       }
+      
+      // Navigate to home on success
       navigate("/", { replace: true });
     } catch (err) {
       setError(err.message || "Verification failed");
@@ -67,12 +109,18 @@ export default function VerifyOTP() {
     }
   }
 
+  // Get title based on context
+  const getTitle = () => {
+    if (context === "employee-login") return "Department Login Verification";
+    return email ? "Email Verification" : "Phone Verification";
+  };
+
   return (
     <div className="mx-auto flex min-h-screen w-full max-w-xl flex-col px-6 py-6">
       <header className="flex items-center gap-3 py-2 text-3xl font-semibold">
         <button
           type="button"
-          onClick={() => navigate(-1)}
+          onClick={() => navigate("/login")}
           aria-label="Back"
           className="flex h-10 w-10 items-center justify-center rounded-full text-black transition hover:bg-black/10"
         >
@@ -85,7 +133,10 @@ export default function VerifyOTP() {
           onSubmit={handleSubmit}
           className="w-full rounded-2xl border border-black/50 bg-black/10 px-6 py-10 text-center shadow-sm backdrop-blur"
         >
-          <h1 className="mb-8 text-xl font-semibold">Enter The OTP</h1>
+          <h1 className="mb-8 text-xl font-semibold">{getTitle()}</h1>
+          <p className="mb-6 text-sm text-gray-600">
+            We've sent a verification code to {email || phone}
+          </p>
           <div className="mb-8 flex justify-center gap-3">
             {digits.map((d, i) => (
               <input

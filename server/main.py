@@ -6,6 +6,7 @@ from Routes.SalaryRoutes import salary_router
 from Routes.RequestRoute import request_router
 from Routes.FeedbackRoutes import feedback_router
 from Routes.AuthRoutes import auth_router
+from Routes.ProfileRoutes import officer_profile_router
 
 
 app = FastAPI()
@@ -13,7 +14,8 @@ app = FastAPI()
 
 # Configure CORS
 origins = [
-    "http://localhost:5173",          # Development frontend
+    "http://localhost:5173",   
+    "http://localhost:5174" ,      # Development frontend
     "http://localhost:3000",          # Another possible dev port
     "https://your-production-url.com"  # Production frontend
 ]
@@ -35,3 +37,4 @@ app.include_router(salary_router)
 app.include_router(feedback_router)
 app.include_router(request_router)
 app.include_router(auth_router)
+app.include_router(officer_profile_router)

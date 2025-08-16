@@ -1,5 +1,5 @@
 from fastapi import HTTPException, UploadFile
-from typing import List, Optional
+from typing import List, Optional, Dict, Set
 import uuid
 from datetime import datetime
 from bson import ObjectId
@@ -338,7 +338,9 @@ async def get_Warrents_logic() -> list:
                 warrent["created_at"] = warrent["created_at"].isoformat()
             if "supporting_documents" in warrent:
                 for doc in warrent["supporting_documents"]:
-                    if "upload_date" in doc and isinstance(doc["upload_date"], datetime):
+                    if "upload_date" in doc and isinstance(
+                        doc["upload_date"], datetime
+                    ):
                         doc["upload_date"] = doc["upload_date"].isoformat()
             warrents.append(warrent)
         return warrents
@@ -348,26 +350,144 @@ async def get_Warrents_logic() -> list:
         )
 
 
-async def get_requests_for_gs(gs_handler_id: str) -> list:
-    cursor = requests_collection.find(
-        {"current_handler_id": gs_handler_id, "status": "pending_gs"}
-    )
-    requests = []
-    async for req in cursor:
-        req["_id"] = str(req["_id"])
-        requests.append(req)
-    return requests
+async def _require_employee_role(employee_id: str, required_role: str) -> dict:
+    """Validate that employee_id exists in employees_collection and has the required role."""
+    try:
+        emp = await employees_collection.find_one({"_id": ObjectId(employee_id)})
+    except Exception:
+        raise HTTPException(
+            status_code=400, detail="Invalid employee/handler id format"
+        )
+
+    if not emp:
+        raise HTTPException(status_code=404, detail="Employee not found")
+
+    role = (emp.get("role") or "").upper()
+    if role != required_role.upper():
+        raise HTTPException(
+            status_code=403,
+            detail=f"Only {required_role.upper()} can access this resource",
+        )
+    return emp
 
 
-async def get_requests_for_ds(ds_handler_id: str) -> list:
-    cursor = requests_collection.find(
-        {"current_handler_id": ds_handler_id, "status": "pending_ds"}
-    )
-    requests = []
-    async for req in cursor:
-        req["_id"] = str(req["_id"])
-        requests.append(req)
-    return requests
+async def get_requests_for_gs(gs_handler_id: str) -> List[dict]:
+    """
+    Return only the warrant documents related to a GS (by handler_id).
+    """
+    # Enforce role: must be GS
+    await _require_employee_role(gs_handler_id, "GS")
+
+    try:
+        query = {
+            "resource_name": "warrent",
+            "$or": [
+                {"current_handler_id": gs_handler_id},
+                {"handler_history": {"$elemMatch": {"handler_id": gs_handler_id}}},
+            ],
+        }
+        results: List[dict] = []
+        seen: Set[str] = set()
+        cursor = requests_collection.find(query)
+
+        async for req in cursor:
+            res_id = req.get("resource_id")
+            if not res_id or res_id in seen:
+                continue
+            seen.add(res_id)
+
+            try:
+                warr = await warrent_collection.find_one({"_id": ObjectId(res_id)})
+            except Exception:
+                warr = None
+
+            if not warr:
+                continue
+
+            warr["_id"] = str(warr["_id"])
+            for dt_field in (
+                "TravelDate",
+                "ReturnDate",
+                "DateOfRetirement",
+                "created_at",
+            ):
+                if dt_field in warr and isinstance(warr[dt_field], datetime):
+                    warr[dt_field] = warr[dt_field].isoformat()
+
+            if "supporting_documents" in warr:
+                for doc in warr["supporting_documents"]:
+                    if "upload_date" in doc and isinstance(
+                        doc["upload_date"], datetime
+                    ):
+                        doc["upload_date"] = doc["upload_date"].isoformat()
+
+            results.append(warr)
+
+        return results
+    except Exception as e:
+        raise HTTPException(
+            status_code=500, detail=f"Error fetching GS warrants: {str(e)}"
+        )
+
+
+async def get_requests_for_ds(ds_handler_id: str) -> List[dict]:
+    """
+    Return only the warrant documents related to a DS (by handler_id).
+    """
+    # Enforce role: must be DS
+    await _require_employee_role(ds_handler_id, "DS")
+
+    try:
+        query = {
+            "resource_name": "warrent",
+            "$or": [
+                {"current_handler_id": ds_handler_id},
+                {"handler_history": {"$elemMatch": {"handler_id": ds_handler_id}}},
+            ],
+        }
+        results: List[dict] = []
+        seen: Set[str] = set()
+        cursor = requests_collection.find(query)
+
+        async for req in cursor:
+            res_id = req.get("resource_id")
+            if not res_id or res_id in seen:
+                continue
+            seen.add(res_id)
+
+            try:
+                warr = await warrent_collection.find_one({"_id": ObjectId(res_id)})
+            except Exception:
+                warr = None
+
+            if not warr:
+                continue
+
+            warr["_id"] = str(warr["_id"])
+            for dt_field in (
+                "TravelDate",
+                "ReturnDate",
+                "DateOfRetirement",
+                "created_at",
+            ):
+                if dt_field in warr and isinstance(warr[dt_field], datetime):
+                    warr[dt_field] = warr[dt_field].isoformat()
+
+            if "supporting_documents" in warr:
+                for doc in warr["supporting_documents"]:
+                    if "upload_date" in doc and isinstance(
+                        doc["upload_date"], datetime
+                    ):
+                        doc["upload_date"] = doc["upload_date"].isoformat()
+
+            results.append(warr)
+
+        return results
+    except Exception as e:
+        raise HTTPException(
+            status_code=500, detail=f"Error fetching DS warrants: {str(e)}"
+        )
+
 
 async def get_warrents_by_userid_logic(user_id: str) -> list:
     """Get all warrants by user ID"""
@@ -380,11 +500,59 @@ async def get_warrents_by_userid_logic(user_id: str) -> list:
                 warrent["created_at"] = warrent["created_at"].isoformat()
             if "supporting_documents" in warrent:
                 for doc in warrent["supporting_documents"]:
-                    if "upload_date" in doc and isinstance(doc["upload_date"], datetime):
+                    if "upload_date" in doc and isinstance(
+                        doc["upload_date"], datetime
+                    ):
                         doc["upload_date"] = doc["upload_date"].isoformat()
             warrents.append(warrent)
         return warrents
     except Exception as e:
         raise HTTPException(
             status_code=500, detail=f"Error retrieving warrants: {str(e)}"
+        )
+
+
+async def reject_warrent_request(
+    request_id: str, handler_id: Optional[str] = None, reason: Optional[str] = None
+) -> dict:
+    """Reject a warrant request. Marks status=rejected and logs history if handler provided."""
+    try:
+        request = await requests_collection.find_one({"_id": ObjectId(request_id)})
+        if not request:
+            raise HTTPException(status_code=404, detail="Request not found")
+
+        if request.get("status") in ("approved", "appointment_created", "rejected"):
+            raise HTTPException(
+                status_code=400,
+                detail=f"Cannot reject a request in status '{request.get('status')}'",
+            )
+
+        update_set = {
+            "status": "rejected",
+            "current_handler_id": None,
+            "rejected_at": datetime.utcnow(),
+        }
+        if reason is not None:
+            update_set["rejection_reason"] = reason
+
+        update_doc = {"$set": update_set}
+
+        # Only push handler history if we have a handler_id
+        if handler_id:
+            update_doc["$push"] = {
+                "handler_history": {
+                    "handler_id": handler_id,
+                    "action": "rejected",
+                    "reason": reason,
+                    "timestamp": datetime.utcnow(),
+                }
+            }
+
+        await requests_collection.update_one({"_id": ObjectId(request_id)}, update_doc)
+        return {"message": "Request rejected", "request_id": request_id}
+    except HTTPException:
+        raise
+    except Exception as e:
+        raise HTTPException(
+            status_code=500, detail=f"Error rejecting request: {str(e)}"
         )
