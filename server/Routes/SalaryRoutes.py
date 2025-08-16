@@ -1,6 +1,9 @@
 from fastapi import APIRouter, UploadFile, File, Form, Depends
 from typing import List, Optional
 from datetime import datetime, time, date
+from utils.auth import (
+    get_citizen_only
+)
 
 from Models.SalaryModel import salaryModel
 from Controllers.SalaryParticularControllelr import (
@@ -18,15 +21,17 @@ async def create_salary_particular(
     PensionID: str = Form(...),
     ReasonForRequest: str = Form(...),
     PriorityLevel: str = Form(...),
-    AppointmentDate: date = Form(...),  
-    UserId: str = Form(...),
+    AppointmentDate: date = Form(...),
     Area: str = Form(...),
     AppointmentTime: time = Form(...),
     AdditionalDetails: str = Form(...),
-    files: Optional[List[UploadFile]] = File(...)
+    files: Optional[List[UploadFile]] = File(...),
+    current_user=Depends(get_citizen_only)
 ):
     """Create a new salary particular request with optional file uploads"""
     
+    user_id = current_user["_id"]
+
     # Create schema object
     salary_data = CreateSalaryParticularSchema(
         fullname=fullname,
@@ -37,7 +42,7 @@ async def create_salary_particular(
         AppointmentDate=AppointmentDate,
         AppointmentTime=AppointmentTime,
         AdditionalDetails=AdditionalDetails,
-        UserId=UserId,
+        UserId=user_id,
         Area=Area
     )
     

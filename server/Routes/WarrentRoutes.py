@@ -1,4 +1,4 @@
-from fastapi import APIRouter, UploadFile, File, Form, Depends, HTTPException, status
+from fastapi import APIRouter, UploadFile, File, Form
 from typing import List, Optional
 from Models.WarrentModel import WarrentModel
 from Controllers.WarrentController import (
@@ -8,20 +8,14 @@ from Controllers.WarrentController import (
     approve_warrent_request_by_ds,
     create_appointment_from_warrent_request,
     get_warrents_by_userid_logic,
-)
-from utils.auth import (
-    get_current_active_user,
-    get_citizen_only,
-    get_employee_only,
-    get_gs_only,
-    get_ds_only,
+    reject_warrent_request,
 )
 
 warrent_router = APIRouter(prefix="/warrents", tags=["Warrents"])
 
 
 @warrent_router.get("/getwarrents", response_model=List[WarrentModel])
-async def get_Warrents(current_user=Depends(get_current_active_user)):
+async def get_Warrents():
     return await get_Warrents_logic()
 
 
@@ -48,12 +42,13 @@ async def create_warrent(
     AppointmentDate: str = Form(...),
     AppointmentTime: str = Form(...),
     Area: str = Form(...),
-    UserId: str = Form(...),
     files: Optional[List[UploadFile]] = File(None),
-    current_user=Depends(get_citizen_only),
 ):
     from Schemas.WarrentSchema import CreateWarrentSchema
     from datetime import datetime
+
+    user_id = str(current_user.id)
+    print(dir(current_user))
 
     warrent = CreateWarrentSchema(
         fullname=fullname,
@@ -77,22 +72,18 @@ async def create_warrent(
         AppointmentDate=AppointmentDate,
         AppointmentTime=AppointmentTime,
         Area=Area,
-        UserId=UserId,
+        UserId=user_id
     )
     return await create_warrent_logic(warrent, files)
 
 
 @warrent_router.post("/approve_gs/{request_id}", response_model=dict)
-async def approve_gs(
-    request_id: str, gs_handler_id: str = Form(...), current_user=Depends(get_gs_only)
-):
+async def approve_gs(request_id: str, gs_handler_id: str = Form(...)):
     return await approve_warrent_request_by_gs(request_id, gs_handler_id)
 
 
 @warrent_router.post("/approve_ds/{request_id}", response_model=dict)
-async def approve_ds(
-    request_id: str, ds_handler_id: str = Form(...), current_user=Depends(get_ds_only)
-):
+async def approve_ds(request_id: str, ds_handler_id: str = Form(...)):
     return await approve_warrent_request_by_ds(request_id, ds_handler_id)
 
 
@@ -100,27 +91,29 @@ async def approve_ds(
 async def create_appointment(
     request_id: str = Form(...),
     user_id: str = Form(...),
-    current_user=Depends(get_current_active_user),
 ):
     return await create_appointment_from_warrent_request(request_id, user_id)
 
 
 @warrent_router.get("/gs/requests/{gs_handler_id}", response_model=List[dict])
-async def get_gs_requests(gs_handler_id: str, current_user=Depends(get_gs_only)):
+async def get_gs_requests(gs_handler_id: str):
     from Controllers.WarrentController import get_requests_for_gs
 
     return await get_requests_for_gs(gs_handler_id)
 
 
 @warrent_router.get("/ds/requests/{ds_handler_id}", response_model=List[dict])
-async def get_ds_requests(ds_handler_id: str, current_user=Depends(get_ds_only)):
+async def get_ds_requests(ds_handler_id: str):
     from Controllers.WarrentController import get_requests_for_ds
 
     return await get_requests_for_ds(ds_handler_id)
 
 
 @warrent_router.get("/user/{user_id}/warrents", response_model=List[dict])
-async def get_warrents_by_userid(user_id: str, current_user=Depends(get_citizen_only)):
-    from Controllers.WarrentController import get_warrents_by_userid_logic
-
+async def get_warrents_by_userid(user_id: str):
     return await get_warrents_by_userid_logic(user_id)
+
+
+@warrent_router.post("/reject/{request_id}", response_model=dict)
+async def reject_request(request_id: str):
+    return await reject_warrent_request(request_id)
