@@ -1,12 +1,11 @@
 import { useState } from "react";
-import { Link, useNavigate } from "react-router-dom"; // added Link
+import { useNavigate } from "react-router-dom";
 
-// Assumptions:
-// 1. API base URL exposed via Vite env VITE_API_BASE (fallback to http://localhost:8000)
-// 2. Auth endpoint: POST /auth/login (OAuth2PasswordRequestForm) returns JSON { username, role, message }
-// 3. Server sets httpOnly cookie; we only need to store username/role optionally in memory/localStorage
+// Department Portal Login Page
+// Re-uses same backend contract as citizen login: POST /auth/login
+// After successful login, go to /enter-phone for MFA (phone OTP) unless already verified later.
 
-function Login() {
+export default function Login() {
   const navigate = useNavigate();
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
@@ -20,33 +19,29 @@ function Login() {
     if (loading) return;
     setError("");
     setLoading(true);
-    
     try {
       const form = new URLSearchParams();
       form.append("username", username.trim());
       form.append("password", password);
-      form.append("grant_type", "password");
-      
-      // Call the first step of login
-      const res = await fetch(`${apiBase}/auth/login-verify`, {
+      form.append("grant_type", "");
+      const res = await fetch(`${apiBase}/auth/login`, {
         method: "POST",
         body: form,
         headers: { "Content-Type": "application/x-www-form-urlencoded" },
         credentials: "include",
       });
-      
       const data = await res.json().catch(() => ({}));
-      if (!res.ok) {
+      if (!res.ok)
         throw new Error(data.detail || data.message || "Login failed");
+      try {
+        localStorage.setItem(
+          "dept:user",
+          JSON.stringify({ username: data.username, role: data.role }),
+        );
+      } catch {
+        // ignore storage errors
       }
-      
-      // If successful, navigate to OTP verification with email in state
-      navigate("/verify-otp", { 
-        state: { 
-          email: data.email,
-          context: "login"  // Context helps OTP page know what flow it's in
-        } 
-      });
+      navigate("/enter-phone", { replace: true });
     } catch (err) {
       setError(err.message || "Unknown error");
     } finally {
@@ -57,19 +52,23 @@ function Login() {
   const disabled = loading || !username.trim() || !password;
 
   return (
-    <div className="mx-auto flex h-full w-full max-w-[430px] flex-col px-6 py-8">
+    <div className="mx-auto flex min-h-screen w-full max-w-5xl flex-col px-6 py-8">
       <header className="py-4 text-center text-4xl font-semibold tracking-tight">
-        eGovDoc
+        eGovDoc Dept
       </header>
-      <div className="flex flex-1 flex-col">
-        <h1 className="mt-6 text-center text-2xl font-bold">Welcome Back!</h1>
+      <div className="flex flex-1 flex-col md:flex-row md:items-center md:gap-16">
+        <div className="hidden flex-1 md:block">
+          <h1 className="mb-4 text-3xl leading-tight font-bold">
+            Welcome Back Officer
+          </h1>
+        </div>
         <div className="flex flex-1 items-center">
           <form
             onSubmit={handleSubmit}
-            className="flex w-full flex-col gap-5 rounded-[40px] border border-black/25 bg-black/5 px-7 pt-8 pb-10 shadow-[inset_0_1px_0_rgba(255,255,255,.45),0_4px_20px_rgba(0,0,0,.15)]"
+            className="flex w-full flex-col gap-5 rounded-[40px] border border-black/25 bg-black/5 px-7 pt-8 pb-10 shadow-[inset_0_1px_0_rgba(255,255,255,.45),0_4px_20px_rgba(0,0,0,.15)] md:max-w-md"
           >
             <h2 className="text-center text-lg font-semibold">
-              Log in to your account
+              Department Login
             </h2>
             <label className="flex flex-col gap-2 text-sm">
               <span className="font-medium opacity-90">Username</span>
@@ -78,7 +77,7 @@ function Login() {
                 value={username}
                 onChange={(e) => setUsername(e.target.value)}
                 autoComplete="username"
-                className="rounded-xl border border-black/40 bg-white/70 px-4 py-3 text-base ring-0 outline-none placeholder:opacity-50 focus:border-[#2F7496] focus:bg-white"
+                className="rounded-xl border border-black/40 bg-white/70 px-4 py-3 text-base outline-none placeholder:opacity-50 focus:border-[#2F7496] focus:bg-white"
                 placeholder="Enter your username"
                 required
               />
@@ -90,7 +89,7 @@ function Login() {
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
                 autoComplete="current-password"
-                className="rounded-xl border border-black/40 bg-white/70 px-4 py-3 text-base ring-0 outline-none placeholder:opacity-50 focus:border-[#2F7496] focus:bg-white"
+                className="rounded-xl border border-black/40 bg-white/70 px-4 py-3 text-base outline-none placeholder:opacity-50 focus:border-[#2F7496] focus:bg-white"
                 placeholder="Enter your password"
                 required
               />
@@ -105,30 +104,14 @@ function Login() {
               disabled={disabled}
               className="mx-auto mt-2 w-full max-w-[240px] rounded-full bg-black px-8 py-4 text-lg font-bold text-white transition-colors disabled:cursor-not-allowed disabled:bg-black/50"
             >
-              {loading ? "Verifying..." : "Log in"}
+              {loading ? "Logging in..." : "Log in"}
             </button>
-            <div className="pt-2 text-center">
-              <button 
-                type="button"
-                onClick={() => navigate("/forgot-password")}
-                className="text-xs font-medium opacity-70 hover:underline"
-              >
-                Forgot Password?
-              </button>
-            </div>
+            <p className="pt-2 text-center text-xs font-medium opacity-70">
+              Forgot Password?
+            </p>
           </form>
         </div>
-      </div>
-      <div className="mt-4">
-        <Link
-          to="/signup"
-          className="block w-full rounded-full border border-black/60 px-4 py-3 text-center text-sm font-bold hover:bg-black/5"
-        >
-          Don't have an account? Create one!
-        </Link>
       </div>
     </div>
   );
 }
-
-export default Login;
