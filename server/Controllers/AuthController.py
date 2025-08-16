@@ -5,7 +5,7 @@ from fastapi import Response
 from Models.AuthModels import TokenResponse
 
 from Models.AuthModels import UserCreate, UserInDB, User, Token
-from Config.db import users_collection
+from Config.db import users_collection, employees_collection
 from utils.auth import (
     get_password_hash, 
     authenticate_user,
@@ -18,7 +18,8 @@ from utils.auth import (
     verify_otp,
     ACCESS_TOKEN_EXPIRE_MINUTES,
     set_auth_cookie,
-    clear_auth_cookie
+    clear_auth_cookie,
+    get_employee
 )
 
 # Signup logic (only for citizens)
@@ -255,4 +256,67 @@ async def login_verify_otp(email: str, otp: str, response: Response):
         username=user.username,
         role="citizen",
         message="Login successful"  
+    )
+
+async def employee_login_verify_credentials(username: str, password: str):
+    """Verify employee credentials and send OTP to their email"""
+    employee = await get_employee(username)
+    if not employee or employee["Password"] != password:
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Incorrect username or password",
+            headers={"WWW-Authenticate": "Bearer"},
+        )
+    
+    # Get email from employee record
+    employee_email = employee.get("Email") or employee.get("email")
+    if not employee_email:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="No email address found for this employee"
+        )
+    
+    # Generate and send OTP
+    otp = generate_otp()
+    email_sent = send_email(
+        employee_email,
+        "eGovDoc - Employee Login Verification",
+        f"Your login verification code is: {otp}. It will expire in 5 minutes."
+    )
+    
+    if not email_sent:
+        raise HTTPException(status_code=500, detail="Failed to send verification email")
+    
+    # Store OTP
+    store_otp(employee_email, otp)
+    
+    return {"message": "Verification code sent to your email", "email": employee_email}
+
+async def employee_login_verify_otp(email: str, otp: str, response: Response):
+    """Verify employee OTP and complete login"""
+    if not verify_otp(email, otp):
+        raise HTTPException(status_code=400, detail="Invalid or expired verification code")
+    
+    # Find employee by email
+    employee = await employees_collection.find_one({"Email": email})
+    if not employee:
+        employee = await employees_collection.find_one({"email": email})
+    
+    if not employee:
+        raise HTTPException(status_code=404, detail="Employee not found")
+    
+    # Create token
+    access_token_expires = timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES)
+    access_token = create_access_token(
+        data={"sub": employee["UserName"], "role": employee["role"]},
+        expires_delta=access_token_expires
+    )
+    
+    # Set cookie
+    set_auth_cookie(response, access_token)
+    
+    return TokenResponse(
+        username=employee["UserName"],
+        role=employee["role"],
+        message="Login successful"
     )

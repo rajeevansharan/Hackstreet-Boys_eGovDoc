@@ -2,8 +2,7 @@ import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 
 // Department Portal Login Page
-// Re-uses same backend contract as citizen login: POST /auth/login
-// After successful login, go to /enter-phone for MFA (phone OTP) unless already verified later.
+// Uses email OTP verification instead of phone verification
 
 export default function Login() {
   const navigate = useNavigate();
@@ -23,25 +22,36 @@ export default function Login() {
       const form = new URLSearchParams();
       form.append("username", username.trim());
       form.append("password", password);
-      form.append("grant_type", "");
-      const res = await fetch(`${apiBase}/auth/login`, {
-        method: "POST",
+      form.append("grant_type", "password");
+
+      // Use the email verification flow instead of direct login
+      const res = await fetch(`${apiBase}/auth/employee-login-verify`, {
+        method: 'POST',
         body: form,
         headers: { "Content-Type": "application/x-www-form-urlencoded" },
         credentials: "include",
       });
+
       const data = await res.json().catch(() => ({}));
       if (!res.ok)
         throw new Error(data.detail || data.message || "Login failed");
+      
+      // Save some details for later
       try {
         localStorage.setItem(
-          "dept:user",
-          JSON.stringify({ username: data.username, role: data.role }),
+          "dept:temp",
+          JSON.stringify({ username: username.trim() })
         );
       } catch {
         // ignore storage errors
       }
-      navigate("/enter-phone", { replace: true });
+      navigate("/verify-otp", { 
+        state: { 
+          email: data.email,
+          context: "employee-login"  // Identifies this is an employee login flow
+        },
+        replace: true 
+      });
     } catch (err) {
       setError(err.message || "Unknown error");
     } finally {
@@ -106,9 +116,6 @@ export default function Login() {
             >
               {loading ? "Logging in..." : "Log in"}
             </button>
-            <p className="pt-2 text-center text-xs font-medium opacity-70">
-              Forgot Password?
-            </p>
           </form>
         </div>
       </div>
