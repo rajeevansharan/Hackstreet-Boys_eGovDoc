@@ -6,18 +6,8 @@ import Home from "./pages/Home";
 import Login from "./pages/Login";
 import Signup from "./pages/Signup";
 import VerifyOTP from "./pages/VerifyOTP";
+import TravelWarrantForm from "./pages/TravelWarrant";
 import SalaryParticularPage from "./pages/SalaryParticularPage";
-
-// Simple auth gate using presence of localStorage egovdoc:user
-function requireAuth() {
-  try {
-    const stored = localStorage.getItem("egovdoc:user");
-    if (!stored) throw new Error("no user");
-  } catch {
-    throw redirect("/login");
-  }
-  return null;
-}
 
 // Simple auth gate using presence of localStorage egovdoc:user
 function requireAuth() {
@@ -43,8 +33,8 @@ const router = createBrowserRouter([
     children: [{ index: true, element: <Home /> }],
   },
   {
-    path: "/salary",
-    element: <SalaryParticularPage />,
+    path: "/travel-warrant",
+    element: <TravelWarrantForm />
   },
   {
     path: "/salary",
