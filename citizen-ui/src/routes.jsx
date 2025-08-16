@@ -19,17 +19,6 @@ function requireAuth() {
   return null;
 }
 
-// Simple auth gate using presence of localStorage egovdoc:user
-function requireAuth() {
-  try {
-    const stored = localStorage.getItem("egovdoc:user");
-    if (!stored) throw new Error("no user");
-  } catch {
-    throw redirect("/login");
-  }
-  return null;
-}
-
 const router = createBrowserRouter([
   { path: "/login", element: <Login /> },
   { path: "/signup", element: <Signup /> },
