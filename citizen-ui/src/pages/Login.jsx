@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom"; // added Link
 
 // Assumptions:
 // 1. API base URL exposed via Vite env VITE_API_BASE (fallback to http://localhost:8000)
@@ -106,8 +106,19 @@ function Login() {
             >
               {loading ? "Logging in..." : "Log in"}
             </button>
+            <p className="pt-2 text-center text-xs font-medium opacity-70">
+              Forgot Password?
+            </p>
           </form>
         </div>
+      </div>
+      <div className="mt-4">
+        <Link
+          to="/signup"
+          className="block w-full rounded-full border border-black/60 px-4 py-3 text-center text-sm font-bold hover:bg-black/5"
+        >
+          Don’t have an account? Create one!
+        </Link>
       </div>
     </div>
   );
