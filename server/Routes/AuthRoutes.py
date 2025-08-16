@@ -20,7 +20,8 @@ from Controllers.AuthController import (
     employee_login_logic,
     request_password_reset_logic,
     verify_reset_otp_logic,
-    reset_password_logic
+    reset_password_logic,
+    logout_logic
 )
 from utils.auth import get_current_active_user, get_employee_only
 
