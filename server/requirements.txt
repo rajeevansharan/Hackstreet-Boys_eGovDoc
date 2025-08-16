@@ -6,3 +6,8 @@ python-multipart
 qrcode[pil]
 python-jose[cryptography]
 pymongo
+python-jose[cryptography]
+passlib[bcrypt]
+python-multipart
+email-validator
+dotenv
