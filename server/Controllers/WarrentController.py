@@ -350,23 +350,42 @@ async def get_Warrents_logic() -> list:
         )
 
 
+async def _require_employee_role(employee_id: str, required_role: str) -> dict:
+    """Validate that employee_id exists in employees_collection and has the required role."""
+    try:
+        emp = await employees_collection.find_one({"_id": ObjectId(employee_id)})
+    except Exception:
+        raise HTTPException(
+            status_code=400, detail="Invalid employee/handler id format"
+        )
+
+    if not emp:
+        raise HTTPException(status_code=404, detail="Employee not found")
+
+    role = (emp.get("role") or "").upper()
+    if role != required_role.upper():
+        raise HTTPException(
+            status_code=403,
+            detail=f"Only {required_role.upper()} can access this resource",
+        )
+    return emp
+
+
 async def get_requests_for_gs(gs_handler_id: str) -> List[dict]:
     """
     Return only the warrant documents related to a GS (by handler_id).
-    Matches requests where:
-      - current_handler_id == gs_handler_id, or
-      - handler_history contains handler_id == gs_handler_id
-    Uses request.resource_name == 'warrent' and request.resource_id to fetch warrants.
     """
+    # Enforce role: must be GS
+    await _require_employee_role(gs_handler_id, "GS")
+
     try:
         query = {
-            "resource_name": "warrent",  # use resource_name (request_type may not exist)
+            "resource_name": "warrent",
             "$or": [
                 {"current_handler_id": gs_handler_id},
                 {"handler_history": {"$elemMatch": {"handler_id": gs_handler_id}}},
             ],
         }
-
         results: List[dict] = []
         seen: Set[str] = set()
         cursor = requests_collection.find(query)
@@ -385,7 +404,6 @@ async def get_requests_for_gs(gs_handler_id: str) -> List[dict]:
             if not warr:
                 continue
 
-            # sanitize for JSON
             warr["_id"] = str(warr["_id"])
             for dt_field in (
                 "TravelDate",
@@ -406,7 +424,6 @@ async def get_requests_for_gs(gs_handler_id: str) -> List[dict]:
             results.append(warr)
 
         return results
-
     except Exception as e:
         raise HTTPException(
             status_code=500, detail=f"Error fetching GS warrants: {str(e)}"
@@ -416,11 +433,10 @@ async def get_requests_for_gs(gs_handler_id: str) -> List[dict]:
 async def get_requests_for_ds(ds_handler_id: str) -> List[dict]:
     """
     Return only the warrant documents related to a DS (by handler_id).
-    Matches requests where:
-      - current_handler_id == ds_handler_id, or
-      - handler_history contains handler_id == ds_handler_id
-    Uses request.resource_name == 'warrent' and request.resource_id to fetch warrants.
     """
+    # Enforce role: must be DS
+    await _require_employee_role(ds_handler_id, "DS")
+
     try:
         query = {
             "resource_name": "warrent",
@@ -429,7 +445,6 @@ async def get_requests_for_ds(ds_handler_id: str) -> List[dict]:
                 {"handler_history": {"$elemMatch": {"handler_id": ds_handler_id}}},
             ],
         }
-
         results: List[dict] = []
         seen: Set[str] = set()
         cursor = requests_collection.find(query)
@@ -448,7 +463,6 @@ async def get_requests_for_ds(ds_handler_id: str) -> List[dict]:
             if not warr:
                 continue
 
-            # sanitize for JSON
             warr["_id"] = str(warr["_id"])
             for dt_field in (
                 "TravelDate",
@@ -469,7 +483,6 @@ async def get_requests_for_ds(ds_handler_id: str) -> List[dict]:
             results.append(warr)
 
         return results
-
     except Exception as e:
         raise HTTPException(
             status_code=500, detail=f"Error fetching DS warrants: {str(e)}"
