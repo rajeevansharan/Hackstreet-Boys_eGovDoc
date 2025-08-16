@@ -20,32 +20,33 @@ function Login() {
     if (loading) return;
     setError("");
     setLoading(true);
+    
     try {
       const form = new URLSearchParams();
       form.append("username", username.trim());
       form.append("password", password);
-      // OAuth2 spec requires 'grant_type' but FastAPI's OAuth2PasswordRequestForm expects it optionally; include blank
-      form.append("grant_type", "");
-      const res = await fetch(`${apiBase}/auth/login`, {
+      form.append("grant_type", "password");
+      
+      // Call the first step of login
+      const res = await fetch(`${apiBase}/auth/login-verify`, {
         method: "POST",
         body: form,
         headers: { "Content-Type": "application/x-www-form-urlencoded" },
-        credentials: "include", // so cookie is stored
+        credentials: "include",
       });
+      
       const data = await res.json().catch(() => ({}));
       if (!res.ok) {
         throw new Error(data.detail || data.message || "Login failed");
       }
-      // optional persistence
-      try {
-        localStorage.setItem(
-          "egovdoc:user",
-          JSON.stringify({ username: data.username, role: data.role }),
-        );
-      } catch {
-        // ignore persistence errors (e.g., private mode)
-      }
-      navigate("/enter-phone", { replace: true });
+      
+      // If successful, navigate to OTP verification with email in state
+      navigate("/verify-otp", { 
+        state: { 
+          email: data.email,
+          context: "login"  // Context helps OTP page know what flow it's in
+        } 
+      });
     } catch (err) {
       setError(err.message || "Unknown error");
     } finally {
@@ -104,11 +105,17 @@ function Login() {
               disabled={disabled}
               className="mx-auto mt-2 w-full max-w-[240px] rounded-full bg-black px-8 py-4 text-lg font-bold text-white transition-colors disabled:cursor-not-allowed disabled:bg-black/50"
             >
-              {loading ? "Logging in..." : "Log in"}
+              {loading ? "Verifying..." : "Log in"}
             </button>
-            <p className="pt-2 text-center text-xs font-medium opacity-70">
-              Forgot Password?
-            </p>
+            <div className="pt-2 text-center">
+              <button 
+                type="button"
+                onClick={() => navigate("/forgot-password")}
+                className="text-xs font-medium opacity-70 hover:underline"
+              >
+                Forgot Password?
+              </button>
+            </div>
           </form>
         </div>
       </div>
@@ -117,7 +124,7 @@ function Login() {
           to="/signup"
           className="block w-full rounded-full border border-black/60 px-4 py-3 text-center text-sm font-bold hover:bg-black/5"
         >
-          Don’t have an account? Create one!
+          Don't have an account? Create one!
         </Link>
       </div>
     </div>
