@@ -21,8 +21,6 @@ const PasswordChangeModal = ({
     confirm: false
   });
   const [isChangingPassword, setIsChangingPassword] = useState(false);
-
-  
   useEffect(() => {
     if (isOpen) {
       setPasswordData({
@@ -56,7 +54,7 @@ const PasswordChangeModal = ({
       setPasswordErrors(prev => ({ ...prev, [field]: null }));
     }
 
-    // Real-time validation for new password
+    
     if (field === 'newPassword') {
       const errors = validatePassword(value);
       if (errors.length > 0) setPasswordErrors(prev => ({ ...prev, newPassword: errors }));
@@ -97,9 +95,7 @@ const PasswordChangeModal = ({
       setPasswordErrors(errors);
       return;
     }
-
     setIsChangingPassword(true);
-
     try {
       // API call here
       if(onSuccess) onSuccess();
@@ -287,5 +283,4 @@ const PasswordChangeModal = ({
     </div>
   );
 };
-
 export default PasswordChangeModal;
