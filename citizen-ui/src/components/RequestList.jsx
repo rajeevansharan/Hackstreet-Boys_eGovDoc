@@ -8,7 +8,7 @@ function normalizeStatus(s) {
 const LABEL_TO_STATUS = {
   All: "all",
   Completed: "completed",
-  Submitted: "submitted",
+  Pending: "pending",
   Rejected: "rejected",
 };
 
@@ -65,22 +65,22 @@ export default function RequestsList({ serviceId, userId, activeLabel }) {
       {filtered.map((req) => (
         <div
           key={req._id}
-          className="mx-[10px] flex flex-col gap-2 rounded-3xl p-4 shadow-[0px_10px_20px_0px_rgba(0,_0,_0,_0.15)]"
+          className="mx-[10px] flex flex-col gap-3 rounded-3xl bg-white/20 py-4 px-[20px] shadow-[inset_0_1px_0_rgba(255,255,255,.45)] ring-1 ring-white/10 backdrop-blur-xl"
         >
           <div className="flex items-start justify-between gap-3">
-            <div className="flex flex-col">
-              <h3 className="text-sm font-bold">Request ID</h3>
-              <p className="text-xs text-gray-600">{req._id}</p>
+            <div className="flex flex-col gap-2">
+              <h3 className="text-sm font-bold">{req.service_name}</h3>
+              <p className="text-xs text-gray-600">Service ID: {req._id}</p>
             </div>
             <span
-              className={`rounded-full px-2 py-1 text-xs font-semibold ${
+              className={`rounded-md px-2 py-1 text-xs font-semibold ${
                 req.status === "completed"
-                  ? "bg-green-100 text-green-700"
-                  : req.status === "submitted"
-                    ? "bg-blue-100 text-blue-700"
+                  ? "bg-gradient-to-b from-[#2F7496]/70 from-0% to-[#0F2530]/70 to-100% text-[#17C964] "
+                  : req.status === "pending"
+                    ? "bg-gradient-to-b from-[#2F7496]/70 from-0% to-[#0F2530]/70 to-100% text-[#F5A524]"
                     : req.status === "rejected"
-                      ? "bg-red-100 text-red-700"
-                      : "bg-gray-100 text-gray-700"
+                      ? "bg-gradient-to-b from-[#2F7496]/70 from-0% to-[#0F2530]/70 to-100% text-[#F05252]"
+                      : "bg-gradient-to-b from-[#2F7496]/70 from-0% to-[#0F2530]/70 to-100% text-gray-700"
               }`}
             >
               {req.status?.toUpperCase() || "UNKNOWN"}
@@ -88,28 +88,16 @@ export default function RequestsList({ serviceId, userId, activeLabel }) {
           </div>
 
           <div className="grid grid-cols-2 gap-2 text-sm">
-            <div className="flex flex-col">
-              <span className="text-gray-500">Service</span>
-              <span className="font-medium">{req.service_id}</span>
+            <div className="flex">
+              <span className="font-medium text-gray-700">
+                {String(req?.created_at).slice(0, 10)}
+              </span>
             </div>
-            <div className="flex flex-col">
-              <span className="text-gray-500">User</span>
-              <span className="font-medium">{req.user_Id || req.userId}</span>
+            <div className="flex">
+              <span className="font-medium text-gray-700">
+                User ID: {req.user_Id}
+              </span>
             </div>
-            {req.title && (
-              <div className="col-span-2 flex flex-col">
-                <span className="text-gray-500">Title</span>
-                <span className="font-medium">{req.title}</span>
-              </div>
-            )}
-            {req.createdAt && (
-              <div className="flex flex-col">
-                <span className="text-gray-500">Created</span>
-                <span className="font-medium">
-                  {new Date(req.createdAt).toLocaleString()}
-                </span>
-              </div>
-            )}
           </div>
         </div>
       ))}
