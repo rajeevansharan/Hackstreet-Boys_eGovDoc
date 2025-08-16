@@ -49,43 +49,62 @@ function Signup() {
     setForm((f) => ({ ...f, [key]: val }));
   }
 
-  async function handleSubmit(e) {
-    e.preventDefault();
-    if (loading) return;
-    setError("");
-    setSuccess("");
-    if (form.password !== form.confirm_password) {
-      setError("Passwords do not match");
-      return;
-    }
-    setLoading(true);
-    try {
-      const res = await fetch(`${apiBase}/auth/signup`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          username: form.username.trim(),
-          email: form.email.trim(),
-          nic: form.nic.trim(),
-          password: form.password,
-          confirm_password: form.confirm_password,
-          address: form.address,
-        }),
-      });
-      const data = await res.json().catch(() => ({}));
-      if (!res.ok)
-        throw new Error(data.detail || data.message || "Signup failed");
-      setSuccess(
-        "Verification code sent to your email. Redirecting to phone verification...",
-      );
-      // Navigate to phone number entry page
-      navigate("/enter-phone", { replace: true });
-    } catch (err) {
-      setError(err.message || "Unknown error");
-    } finally {
-      setLoading(false);
-    }
+async function handleSubmit(e) {
+  e.preventDefault();
+  if (loading) return;
+  setError("");
+  setSuccess("");
+  if (form.password !== form.confirm_password) {
+    setError("Passwords do not match");
+    return;
   }
+  setLoading(true);
+  try {
+    // Store user data in sessionStorage for later use
+    sessionStorage.setItem("pendingRegistration", JSON.stringify({
+      username: form.username.trim(),
+      email: form.email.trim(),
+      nic: form.nic.trim(),
+      password: form.password,
+      confirm_password: form.confirm_password,
+      dsdivision: form.address,
+    }));
+    
+    const res = await fetch(`${apiBase}/auth/signup`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        username: form.username.trim(),
+        email: form.email.trim(),
+        nic: form.nic.trim(),
+        password: form.password,
+        confirm_password: form.confirm_password,
+        dsdivision: form.address,
+      }),
+    });
+    const data = await res.json().catch(() => ({}));
+    if (!res.ok)
+      throw new Error(data.detail || data.message || "Signup failed");
+    
+    setSuccess(
+      "Verification code sent to your email. Redirecting to verification page..."
+    );
+    
+    // Navigate to OTP verification with proper context
+    setTimeout(() => {
+      navigate("/verify-otp", { 
+        state: { 
+          email: form.email.trim(),
+          context: "register" 
+        } 
+      });
+    }, 1500);
+  } catch (err) {
+    setError(err.message || "Unknown error");
+  } finally {
+    setLoading(false);
+  }
+}
 
   const disabled =
     loading ||

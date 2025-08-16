@@ -202,3 +202,57 @@ async def logout_logic(response: Response):
     """Handle user logout by clearing auth cookie"""
     clear_auth_cookie(response)
     return {"message": "Logged out successfully"}
+
+
+# Add new function for first step of login (credentials verification)
+async def login_verify_credentials(username: str, password: str):
+    user = await authenticate_user(username, password)
+    if not user:
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Incorrect username or password",
+            headers={"WWW-Authenticate": "Bearer"},
+        )
+    
+    # Generate and send OTP to user's email
+    otp = generate_otp()
+    email_sent = send_email(
+        user.email,
+        "eGovDoc - Login Verification",
+        f"Your login verification code is: {otp}. It will expire in 5 minutes."
+    )
+    
+    if not email_sent:
+        raise HTTPException(status_code=500, detail="Failed to send verification email")
+    
+    # Store OTP for verification
+    store_otp(user.email, otp)
+    
+    return {"message": "Verification code sent to your email", "email": user.email}
+
+# Add new function for second step of login (OTP verification)
+async def login_verify_otp(email: str, otp: str, response: Response):
+    # Verify OTP
+    if not verify_otp(email, otp):
+        raise HTTPException(status_code=400, detail="Invalid or expired verification code")
+    
+    # Get user by email
+    user = await get_user_by_email(email)
+    if not user:
+        raise HTTPException(status_code=404, detail="User not found")
+    
+    # Create token after successful OTP verification
+    access_token_expires = timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES)
+    access_token = create_access_token(
+        data={"sub": user.username, "role": "citizen"},
+        expires_delta=access_token_expires
+    )
+    
+    # Set the cookie
+    set_auth_cookie(response, access_token)
+    
+    return TokenResponse(
+        username=user.username,
+        role="citizen",
+        message="Login successful"  
+    )
