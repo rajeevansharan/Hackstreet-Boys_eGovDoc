@@ -73,77 +73,76 @@ async def create_warrent_logic(
         raise HTTPException(status_code=500, detail=f"Error creating warrant: {str(e)}")
 
 
-async def _create_warrent_request(
-    warrent_data: CreateWarrentSchema, warrent_id: str
-) -> dict:
+async def _create_warrent_request(warrent_data: CreateWarrentSchema, warrent_id: str) -> dict:
     """Helper function to create a request document for warrant requests with GS→DS workflow"""
     try:
         # Find or create a default service for warrants
-        warrent_service = await services_collection.find_one(
-            {"serviceId": "service002"}
-        )
-        if not warrent_service:
-            warrent_service = {
+        warrant_service = await services_collection.find_one({"serviceId": "service002"})
+        
+        # If service doesn't exist, create it
+        if not warrant_service:
+            # Create default service for warrants
+            warrant_service_data = {
                 "serviceId": "service002",
-                "name": "Warrant Document Processing",
-                "duration": 30,
-                "description": "Processing of warrant requests and document verification",
+                "name": "Travel Warrant Request",
+                "description": "Request for travel warrant processing",
+                "department": "Pension Department",
+                "created_at": datetime.utcnow()
             }
-            await services_collection.insert_one(warrent_service)
+            service_result = await services_collection.insert_one(warrant_service_data)
+            warrant_service = await services_collection.find_one({"_id": service_result.inserted_id})
+            if not warrant_service:
+                raise HTTPException(status_code=500, detail="Failed to create service")
 
-        # Find GS handler (first handler)
-        gs_handler = await employees_collection.find_one(
-            {"GSDivision": warrent_data.Area, "role": "GS"}
-        )
-        if not gs_handler:
-            gs_handler_id = "DEFAULT_GS001"
+        # Find request handler based on area
+        requestHandler = await employees_collection.find_one({"DSDivision": warrent_data.Area})
+        
+        # Set default handler if none found for the area
+        handler_id = None
+        if not requestHandler:
+            # Find a default handler or system admin
+            default_handler = await employees_collection.find_one({"role": "admin"})
+            if default_handler:
+                handler_id = str(default_handler["_id"])
+            else:
+                raise HTTPException(
+                    status_code=404, 
+                    detail=f"No handler found for area {warrent_data.Area} and no default handler available"
+                )
         else:
-            gs_handler_id = str(gs_handler["_id"])
-
-        # Parse and format time properly
-        appointment_time = "10:00"
-        if hasattr(warrent_data, "AppointmentTime") and warrent_data.AppointmentTime:
-            time_str = warrent_data.AppointmentTime.strip()
-            try:
-                if "AM" in time_str.upper() or "PM" in time_str.upper():
-                    time_obj = datetime.strptime(time_str, "%I:%M %p")
-                    appointment_time = time_obj.strftime("%H:%M")
-                else:
-                    appointment_time = time_str
-            except Exception:
-                appointment_time = "10:00"
-
-        # Create request data with GS as current handler and pending_gs status
+            handler_id = str(requestHandler["_id"])
+        
+        # Create the request document
         request_data = {
-            "service_id": "service002",
-            "service_name": warrent_service["name"],
-            "status": "pending_gs",
-            "created_at": datetime.utcnow(),
-            "approved_at": None,
-            "current_handler_id": gs_handler_id,
-            "handler_history": [],
+            "service_id": str(warrant_service["_id"]),
+            "user_id": warrent_data.UserId,
             "resource_id": warrent_id,
-            "resource_name": "warrent",
-            "priority": warrent_data.PriorityLevel.lower(),
-            "requestAppointmentDate": warrent_data.AppointmentDate,
-            "requestAppointmentTime": appointment_time,
-            "Area": warrent_data.Area,
-            "DSDivision": gs_handler["DSDivision"],
-            "user_Id": warrent_data.UserId,
+            "request_type": "travel_warrant",
+            "status": "pending_gs",  # Initial status pending GS approval
+            "current_handler_id": handler_id,
+            "priority": warrent_data.PriorityLevel,
+            "created_at": datetime.utcnow(),
+            "updated_at": datetime.utcnow(),
+            "appointment_date": warrent_data.AppointmentDate,
+            "appointment_time": warrent_data.AppointmentTime,
         }
-
+        
+        # Insert the request
         request_result = await requests_collection.insert_one(request_data)
-
+        
+        # Return request details
         return {
             "request_id": str(request_result.inserted_id),
-            "status": request_data["status"],
-            "service_name": warrent_service["name"],
-            "priority": request_data["priority"],
-            "created_at": request_data["created_at"].isoformat(),
+            "status": "pending_gs",
+            "handler_id": handler_id,
+            "message": "Request created successfully and assigned to handler"
         }
-
+        
     except Exception as e:
-        raise Exception(f"Error creating request: {str(e)}")
+        print(f"Error creating request: {str(e)}")
+        import traceback
+        print(traceback.format_exc())
+        raise HTTPException(status_code=500, detail=f"Error creating request: {str(e)}")
 
 
 async def approve_warrent_request_by_gs(request_id: str, gs_handler_id: str):
