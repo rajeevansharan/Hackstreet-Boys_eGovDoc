@@ -13,9 +13,9 @@ function SecondaryNavBar() {
 
   return (
     <nav className="mx-[10px] rounded-full bg-white/10 px-[10px] py-2 shadow-[inset_0_1px_0_rgba(255,255,255,.45),0_10px_40px_rgba(0,0,0,.25)] ring-1 ring-white/40 backdrop-blur-xl">
-      <div className="relative grid grid-cols-4 gap-0">
+      <div className="relative grid grid-cols-4">
         <span
-          className="pointer-events-none absolute w-1/4 rounded-full bg-gradient-to-b from-[#2F7496]/70 from-0% to-[#0F2530]/70 to-100% py-5 shadow-[inset_0_1px_0_rgba(255,255,255,.55),0_8px_32px_rgba(0,0,0,.25)] ring-1 ring-white/40 transition-transform duration-300 ease-out"
+          className="pointer-events-none absolute inset-y-1 w-1/4 rounded-full bg-gradient-to-b from-[#2F7496]/70 from-0% to-[#0F2530]/70 to-100% transition-transform duration-300 ease-out"
           style={{ transform: `translateX(${active * 100}%)` }}
         />
         {items.map(({ label }, index) => {
@@ -25,7 +25,7 @@ function SecondaryNavBar() {
               key={label}
               type="button"
               onClick={() => setActive(index)}
-              className="relative z-10 flex flex-col items-center justify-center gap-1 py-3 text-sm"
+              className="z-10 flex items-center justify-center py-3 text-sm"
             >
               <span
                 className={
