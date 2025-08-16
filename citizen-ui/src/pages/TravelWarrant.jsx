@@ -1,101 +1,105 @@
-import React, { useState, useRef, useEffect } from 'react';
-import { Calendar, Upload } from 'lucide-react';
+    import React, { useState, useRef, useEffect } from 'react';
+    import { Calendar, Upload } from 'lucide-react';
+    import { useNavigate } from 'react-router-dom';
 
-export default function TravelWarrantForm() {
-  const initialFormData = {
-    fullName: '',
-    pensionNumber: '',
-    paymentPlace: '',
-    retirementDate: '',
-    annualSalary: '',
-    gsDivision: '',
-    travelClass: '',
-    maritalStatus: '',
-    ticketType: '',
-    carType: '',
-    dependantChildren: '',
-    childrenAges: '',
-    fromStation: '',
-    toStation: '',
-    outwardJourneyDate: '',
-    returnJourneyDate: '',
-    priorityLevel: '',
-    appointmentDate: '',
-    appointmentTime: '',
-    spouseName: '',
-    spouseDepartment: '',
-    informationAccurate: false
-  };
+    export default function TravelWarrantForm() {
 
-  const [formData, setFormData] = useState(initialFormData);
-  const [timeSlots, setTimeSlots] = useState([]);
-  const [loadingTimeSlots, setLoadingTimeSlots] = useState(false);
-  const [uploadedFiles, setUploadedFiles] = useState([]);
-  const [uploading, setUploading] = useState(false);
-  const fileInputRef = useRef(null);
+      const navigate = useNavigate();
 
-  // Function to fetch time slots from backend
-  const fetchTimeSlots = async (date) => {
-    setLoadingTimeSlots(true);
-    try {
-      // Simulate API call - replace with your actual backend endpoint
-      const response = await fetch(`/api/time-slots?date=${date}`, {
-        method: 'GET',
-        headers: {
-          'Content-Type': 'application/json',
-        },
+      const [formData, setFormData] = useState({
+        fullName: '',
+        pensionNumber: '',
+        paymentPlace: '',
+        retirementDate: '',
+        annualSalary: '',
+        travelClass: '',
+        maritalStatus: '',
+        ticketType: '',
+        carType: '',
+        dependantChildren: '',
+        childrenAges: '',
+        fromStation: '',
+        toStation: '',
+        outwardJourneyDate: '',
+        returnJourneyDate: '',
+        priorityLevel: '',
+        appointmentDate: '',
+        appointmentTime: '',
+        gsDivision: '',
+        spouseName: '',
+        spouseDepartment: '',
+        informationAccurate: false
       });
-      
-      if (response.ok) {
-        const data = await response.json();
-        setTimeSlots(data.timeSlots || []);
-      } else {
-        console.error('Failed to fetch time slots');
-        // Fallback to default time slots if API fails
-        setTimeSlots([
-          { value: "09:00-09:30", label: "09:00 - 09:30" },
-          { value: "09:30-10:00", label: "09:30 - 10:00" },
-          { value: "10:00-10:30", label: "10:00 - 10:30" },
-          { value: "10:30-11:00", label: "10:30 - 11:00" },
-          { value: "11:00-11:30", label: "11:00 - 11:30" },
-          { value: "11:30-12:00", label: "11:30 - 12:00" },
-          { value: "12:00-12:30", label: "12:00 - 12:30" },
-          { value: "12:30-13:00", label: "12:30 - 13:00" },
-          { value: "13:00-13:30", label: "13:00 - 13:30" },
-          { value: "13:30-14:00", label: "13:30 - 14:00" },
-          { value: "14:00-14:30", label: "14:00 - 14:30" },
-          { value: "14:30-15:00", label: "14:30 - 15:00" },
-          { value: "15:00-15:30", label: "15:00 - 15:30" },
-          { value: "15:30-16:00", label: "15:30 - 16:00" },
-          { value: "16:00-16:30", label: "16:00 - 16:30" },
-          { value: "16:30-17:00", label: "16:30 - 17:00" }
-        ]);
-      }
-    } catch (error) {
-      console.error('Error fetching time slots:', error);
-      // Fallback to default time slots if API fails
-      setTimeSlots([
-        { value: "09:00-09:30", label: "09:00 - 09:30" },
-        { value: "09:30-10:00", label: "09:30 - 10:00" },
-        { value: "10:00-10:30", label: "10:00 - 10:30" },
-        { value: "10:30-11:00", label: "10:30 - 11:00" },
-        { value: "11:00-11:30", label: "11:00 - 11:30" },
-        { value: "11:30-12:00", label: "11:30 - 12:00" },
-        { value: "12:00-12:30", label: "12:00 - 12:30" },
-        { value: "12:30-13:00", label: "12:30 - 13:00" },
-        { value: "13:00-13:30", label: "13:00 - 13:30" },
-        { value: "13:30-14:00", label: "13:30 - 14:00" },
-        { value: "14:00-14:30", label: "14:00 - 14:30" },
-        { value: "14:30-15:00", label: "14:30 - 15:00" },
-        { value: "15:00-15:30", label: "15:00 - 15:30" },
-        { value: "15:30-16:00", label: "15:30 - 16:00" },
-        { value: "16:00-16:30", label: "16:00 - 16:30" },
-        { value: "16:30-17:00", label: "16:30 - 17:00" }
-      ]);
-    } finally {
-      setLoadingTimeSlots(false);
-    }
-  };
+
+      const [timeSlots, setTimeSlots] = useState([]);
+      const [loadingTimeSlots, setLoadingTimeSlots] = useState(false);
+      const [uploadedFiles, setUploadedFiles] = useState([]);
+      const [uploading, setUploading] = useState(false);
+      const fileInputRef = useRef(null);
+      const [uploadedFileObjects, setUploadedFileObjects] = useState([]);
+
+      // Function to fetch time slots from backend
+      const fetchTimeSlots = async (date) => {
+        setLoadingTimeSlots(true);
+        try {
+          // Simulate API call - replace with your actual backend endpoint
+          const response = await fetch(`/api/time-slots?date=${date}`, {
+            method: 'GET',
+            headers: {
+              'Content-Type': 'application/json',
+            },
+          });
+          
+          if (response.ok) {
+            const data = await response.json();
+            setTimeSlots(data.timeSlots || []);
+          } else {
+            console.error('Failed to fetch time slots');
+            // Fallback to default time slots if API fails
+            setTimeSlots([
+              { value: "09:00-09:30", label: "09:00 - 09:30" },
+              { value: "09:30-10:00", label: "09:30 - 10:00" },
+              { value: "10:00-10:30", label: "10:00 - 10:30" },
+              { value: "10:30-11:00", label: "10:30 - 11:00" },
+              { value: "11:00-11:30", label: "11:00 - 11:30" },
+              { value: "11:30-12:00", label: "11:30 - 12:00" },
+              { value: "12:00-12:30", label: "12:00 - 12:30" },
+              { value: "12:30-13:00", label: "12:30 - 13:00" },
+              { value: "13:00-13:30", label: "13:00 - 13:30" },
+              { value: "13:30-14:00", label: "13:30 - 14:00" },
+              { value: "14:00-14:30", label: "14:00 - 14:30" },
+              { value: "14:30-15:00", label: "14:30 - 15:00" },
+              { value: "15:00-15:30", label: "15:00 - 15:30" },
+              { value: "15:30-16:00", label: "15:30 - 16:00" },
+              { value: "16:00-16:30", label: "16:00 - 16:30" },
+              { value: "16:30-17:00", label: "16:30 - 17:00" }
+            ]);
+          }
+        } catch (error) {
+          console.error('Error fetching time slots:', error);
+          // Fallback to default time slots if API fails
+          setTimeSlots([
+            { value: "09:00", label: "09:00 - 09:30" },
+            { value: "09:30", label: "09:30 - 10:00" },
+            { value: "10:00", label: "10:00 - 10:30" },
+            { value: "10:30", label: "10:30 - 11:00" },
+            { value: "11:00", label: "11:00 - 11:30" },
+            { value: "11:30-12:00", label: "11:30 - 12:00" },
+            { value: "12:00-12:30", label: "12:00 - 12:30" },
+            { value: "12:30-13:00", label: "12:30 - 13:00" },
+            { value: "13:00-13:30", label: "13:00 - 13:30" },
+            { value: "13:30-14:00", label: "13:30 - 14:00" },
+            { value: "14:00-14:30", label: "14:00 - 14:30" },
+            { value: "14:30-15:00", label: "14:30 - 15:00" },
+            { value: "15:00-15:30", label: "15:00 - 15:30" },
+            { value: "15:30-16:00", label: "15:30 - 16:00" },
+            { value: "16:00-16:30", label: "16:00 - 16:30" },
+            { value: "16:30-17:00", label: "16:30 - 17:00" }
+          ]);
+        } finally {
+          setLoadingTimeSlots(false);
+        }
+      };
 
   const handleInputChange = (field, value) => {
     setFormData(prev => ({
@@ -131,7 +135,30 @@ export default function TravelWarrantForm() {
 
   const handleClearForm = () => {
     // Reset form data to initial state
-    setFormData(initialFormData);
+    setFormData({
+      fullName: '',
+      pensionNumber: '',
+      paymentPlace: '',
+      retirementDate: '',
+      annualSalary: '',
+      travelClass: '',
+      maritalStatus: '',
+      ticketType: '',
+      carType: '',
+      dependantChildren: '',
+      childrenAges: '',
+      fromStation: '',
+      toStation: '',
+      outwardJourneyDate: '',
+      returnJourneyDate: '',
+      priorityLevel: '',
+      appointmentDate: '',
+      appointmentTime: '',
+      gsDivision: '',
+      spouseName: '',
+      spouseDepartment: '',
+      informationAccurate: false
+    });
     // Clear uploaded files
     setUploadedFiles([]);
     // Clear time slots
@@ -139,9 +166,80 @@ export default function TravelWarrantForm() {
     console.log('Form cleared');
   };
 
-  const handleSubmitRequest = () => {
-    console.log('Submit the Request clicked', formData);
-  };
+      const handleSubmitRequest = async () => {
+        // Input validation
+        if (!formData.fullName || !formData.pensionNumber || !formData.gsDivision || 
+            !formData.appointmentDate || !formData.appointmentTime || !formData.priorityLevel) {
+          alert("Please fill in all required fields");
+          return;
+        }
+
+        try {
+          // Create FormData object for the multipart/form-data request
+          const requestFormData = new FormData();
+          
+          // Map form fields to backend field names
+          requestFormData.append("fullname", formData.fullName);
+          requestFormData.append("pensionNo", formData.pensionNumber);
+          requestFormData.append("placeOfPaymentPension", formData.paymentPlace);
+          requestFormData.append("DateOfRetirement", formData.retirementDate);
+          requestFormData.append("AnnualSalaryAtRetirementDate", formData.annualSalary);
+          requestFormData.append("TravelClass", formData.travelClass);
+          requestFormData.append("MaritalStatus", formData.maritalStatus);
+          requestFormData.append("OrdinarysingleStatus", formData.ticketType);
+          requestFormData.append("TravelType", "Official"); // Default value or add to form
+          requestFormData.append("DependantChildName", formData.dependantChildren || "None");
+          requestFormData.append("DependantChildAge", formData.childrenAges ? parseInt(formData.childrenAges) : 0);
+          requestFormData.append("FromStation", formData.fromStation);
+          requestFormData.append("ToStation", formData.toStation);
+          requestFormData.append("TravelDate", formData.outwardJourneyDate);
+          requestFormData.append("ReturnDate", formData.returnJourneyDate);
+          requestFormData.append("PriorityLevel", formData.priorityLevel);
+          requestFormData.append("SpouseName", formData.spouseName || "");
+          requestFormData.append("SpouseDepartment", formData.spouseDepartment || "");
+          requestFormData.append("AppointmentDate", formData.appointmentDate);
+          requestFormData.append("AppointmentTime", formData.appointmentTime);
+          requestFormData.append("Area", formData.gsDivision);
+          
+          // Add uploaded files to form data
+          if (uploadedFiles.length > 0) {
+            // Since we already have the files in uploadedFiles state, we need to get the actual File objects
+            // You might need to modify this based on how your file uploads are structured
+            for (const fileData of uploadedFiles) {
+              // If you have a URL to the file or the binary data, you can fetch it and append
+              const response = await fetch(fileData.url);
+              const blob = await response.blob();
+              const file = new File([blob], fileData.name, { type: 'application/pdf' });
+              requestFormData.append("files", file);
+            }
+          }
+          
+          // Get API base URL from environment or use default
+          const apiBase = import.meta.env.VITE_API_BASE || "http://localhost:8000";
+          
+          // Send request to backend
+          const response = await fetch(`${apiBase}/warrents/createwarrents`, {
+            method: 'POST',
+            body: requestFormData,
+            credentials: 'include', // Include cookies for authentication
+          });
+          
+          if (!response.ok) {
+            const errorData = await response.json();
+            throw new Error(errorData.detail || 'Failed to submit warrant request');
+          }
+          
+          const result = await response.json();
+          alert('Travel warrant submitted successfully!');
+          console.log('Submission result:', result);
+          
+          navigate('/requests');
+          
+        } catch (error) {
+          console.error('Error submitting travel warrant:', error);
+          alert(`Error submitting form: ${error.message}`);
+        }
+      };
 
   const handleFileUpload = () => {
     fileInputRef.current?.click();
@@ -156,42 +254,29 @@ export default function TravelWarrantForm() {
       return;
     }
 
-    setUploading(true);
-    
-    try {
-      for (const file of pdfFiles) {
-        const formData = new FormData();
-        formData.append('file', file);
-        formData.append('type', 'supporting_document');
+        setUploading(true);
         
-        // Replace with your actual upload endpoint
-        const response = await fetch('/api/upload-document', {
-          method: 'POST',
-          body: formData,
-        });
-        
-        if (response.ok) {
-          const result = await response.json();
-          setUploadedFiles(prev => [...prev, {
-            name: file.name,
-            size: file.size,
-            uploadedAt: new Date().toISOString(),
-            fileId: result.fileId || Date.now().toString(),
-            url: result.url
-          }]);
-        } else {
-          throw new Error(`Failed to upload ${file.name}`);
+   try {
+          for (const file of pdfFiles) {
+            // Store file metadata in uploadedFiles state
+            setUploadedFiles(prev => [...prev, {
+              name: file.name,
+              size: file.size,
+              uploadedAt: new Date().toISOString(),
+              fileId: Date.now().toString(),
+            }]);
+            
+            // Store the actual File object for later submission
+            setUploadedFileObjects(prev => [...prev, file]);
+          }
+        } catch (error) {
+          console.error('Upload error:', error);
+          alert(`Upload failed: ${error.message}`);
+        } finally {
+          setUploading(false);
+          event.target.value = '';
         }
-      }
-    } catch (error) {
-      console.error('Upload error:', error);
-      alert(`Upload failed: ${error.message}`);
-    } finally {
-      setUploading(false);
-      // Clear the file input
-      event.target.value = '';
-    }
-  };
+      };
 
   const handleFileRemove = (fileId) => {
     setUploadedFiles(prev => prev.filter(file => file.fileId !== fileId));
