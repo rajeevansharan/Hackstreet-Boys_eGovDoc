@@ -22,10 +22,10 @@ function PrimaryNavBar() {
   );
 
   return (
-    <nav className="absolute inset-x-[10px] bottom-[34px] rounded-full bg-white/10 px-[10px] py-1 shadow-[inset_0_1px_0_rgba(255,255,255,.45),0_10px_40px_rgba(0,0,0,.25)] ring-1 ring-white/40 backdrop-blur-xl">
+    <nav className="absolute inset-x-[10px] bottom-[34px] rounded-full bg-white/5 px-[10px] py-1 shadow-[inset_0_1px_0_rgba(255,255,255,.45),0_10px_40px_rgba(0,0,0,.25)] backdrop-blur-xl">
       <div className="relative grid grid-cols-4 gap-0">
         <span
-          className="pointer-events-none absolute inset-y-1 w-1/4 rounded-full bg-white/15 shadow-[inset_0_1px_0_rgba(255,255,255,.55),0_8px_32px_rgba(0,0,0,.25)] ring-1 ring-white/40 transition-transform duration-300 ease-out"
+          className="pointer-events-none absolute inset-y-1 w-1/4 rounded-full bg-white/5 shadow-[inset_0_1px_0_rgba(255,255,255,.55),0_8px_32px_rgba(0,0,0,.25)] transition-transform duration-300 ease-out"
           style={{ transform: `translateX(${active * 100}%)` }}
         />
         {items.map(({ label, Icon, path }) => (
